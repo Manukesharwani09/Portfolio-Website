@@ -9,6 +9,7 @@ import {
   RigidBody,
   CylinderCollider,
   RapierRigidBody,
+  CuboidCollider,
 } from "@react-three/rapier";
 import SectionHeader from "./SectionHeader";
 
