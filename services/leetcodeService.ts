@@ -2,15 +2,19 @@ import { LeetCodeStats } from '../types';
 
 export const fetchLeetCodeStats = async (): Promise<LeetCodeStats> => {
   try {
-    const response = await fetch('https://leetcode-stats-api.herokuapp.com/manukesharwani');
+    const response = await fetch('https://alfa-leetcode-api.onrender.com/userProfile/manukesharwani');
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
     
-    if (data.status === 'error') {
+    if (data.errors || data.totalSolved === undefined) {
       return { status: 'error' };
     }
+
+    const acAll = data.matchedUserStats?.acSubmissionNum?.find((d: any) => d.difficulty === 'All')?.submissions || 0;
+    const totalAll = data.matchedUserStats?.totalSubmissionNum?.find((d: any) => d.difficulty === 'All')?.submissions || 1;
+    const acceptanceRate = ((acAll / totalAll) * 100).toFixed(2);
 
     return {
       status: 'success',
@@ -19,9 +23,9 @@ export const fetchLeetCodeStats = async (): Promise<LeetCodeStats> => {
       mediumSolved: data.mediumSolved,
       hardSolved: data.hardSolved,
       ranking: data.ranking,
-      contributionPoints: data.contributionPoints,
+      contributionPoints: data.contributionPoint,
       reputation: data.reputation,
-      acceptanceRate: data.acceptanceRate,
+      acceptanceRate: acceptanceRate,
       totalQuestions: data.totalQuestions,
     };
   } catch (error) {
