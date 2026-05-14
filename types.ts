@@ -12,6 +12,15 @@ export interface Book {
   category: string;
 }
 
+export interface ContestData {
+  contest: { title: string; startTime: number };
+  ranking: number;
+  rating: number;
+  problemsSolved: number;
+  totalProblems: number;
+  trendDirection: string;
+}
+
 export interface LeetCodeStats {
   status: 'success' | 'error' | 'loading';
   totalSolved?: number;
@@ -19,11 +28,12 @@ export interface LeetCodeStats {
   mediumSolved?: number;
   hardSolved?: number;
   ranking?: number;
-  contributionPoints?: number;
-  reputation?: number;
-  submissionCalendar?: Record<string, number>;
-  totalQuestions?: number;
-  acceptanceRate?: number;
+  contestRating?: number;
+  contestAttend?: number;
+  contestGlobalRanking?: number;
+  totalParticipants?: number;
+  contestTopPercentage?: number;
+  contestHistory?: ContestData[];
 }
 
 export interface NavItem {

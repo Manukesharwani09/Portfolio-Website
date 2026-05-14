@@ -2,19 +2,27 @@ import { LeetCodeStats } from '../types';
 
 export const fetchLeetCodeStats = async (): Promise<LeetCodeStats> => {
   try {
-    const response = await fetch('https://alfa-leetcode-api.onrender.com/userProfile/manukesharwani');
-    if (!response.ok) {
+    const [profileRes, contestRes] = await Promise.all([
+      fetch('https://alfa-leetcode-api.onrender.com/userProfile/manukesharwani'),
+      fetch('https://alfa-leetcode-api.onrender.com/manukesharwani/contest')
+    ]);
+
+    if (!profileRes.ok || !contestRes.ok) {
       throw new Error('Network response was not ok');
     }
-    const data = await response.json();
-    
+
+    const data = await profileRes.json();
+    const contestData = await contestRes.json();
+
     if (data.errors || data.totalSolved === undefined) {
       return { status: 'error' };
     }
 
-    const acAll = data.matchedUserStats?.acSubmissionNum?.find((d: any) => d.difficulty === 'All')?.submissions || 0;
-    const totalAll = data.matchedUserStats?.totalSubmissionNum?.find((d: any) => d.difficulty === 'All')?.submissions || 1;
-    const acceptanceRate = ((acAll / totalAll) * 100).toFixed(2);
+    // Get last 5 contests (most recent first)
+    let recentContests = [];
+    if (contestData.contestParticipation && Array.isArray(contestData.contestParticipation)) {
+      recentContests = contestData.contestParticipation.slice(-5).reverse();
+    }
 
     return {
       status: 'success',
@@ -23,10 +31,13 @@ export const fetchLeetCodeStats = async (): Promise<LeetCodeStats> => {
       mediumSolved: data.mediumSolved,
       hardSolved: data.hardSolved,
       ranking: data.ranking,
-      contributionPoints: data.contributionPoint,
-      reputation: data.reputation,
-      acceptanceRate: acceptanceRate,
-      totalQuestions: data.totalQuestions,
+      // Contest data from the contest endpoint
+      contestRating: Math.round(contestData.contestRating || 0),
+      contestAttend: contestData.contestAttend || 0,
+      contestGlobalRanking: contestData.contestGlobalRanking,
+      totalParticipants: contestData.totalParticipants,
+      contestTopPercentage: contestData.contestTopPercentage,
+      contestHistory: recentContests,
     };
   } catch (error) {
     console.error("LeetCode fetch error:", error);
