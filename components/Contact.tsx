@@ -7,29 +7,29 @@ const Contact: React.FC = () => {
   return (
     <section className="py-20" id="contact">
       <SectionHeader title="contact_info" />
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div className="space-y-6 font-mono">
-          <ContactCommand cmd="contact --email" value={SOCIAL_LINKS.email} icon={<Mail size={16}/>} isLink href={`mailto:${SOCIAL_LINKS.email}`} />
-          <ContactCommand cmd="contact --twitter" value="@smilelikemanu" icon={<Twitter size={16}/>} isLink href={SOCIAL_LINKS.twitter} />
-          <ContactCommand cmd="contact --github" value="manukesharwani09" icon={<Github size={16}/>} isLink href={SOCIAL_LINKS.github} />
+          <ContactCommand cmd="contact --email" value={SOCIAL_LINKS.email} icon={<Mail size={16} />} isLink href={`mailto:${SOCIAL_LINKS.email}`} />
+          <ContactCommand cmd="contact --twitter" value="@smilelikemanu" icon={<Twitter size={16} />} isLink href={SOCIAL_LINKS.twitter} />
+          <ContactCommand cmd="contact --github" value="manukesharwani09" icon={<Github size={16} />} isLink href={SOCIAL_LINKS.github} />
         </div>
 
         <div className="flex flex-col items-start justify-center border-l border-terminal-green/20 pl-8">
-           <p className="text-gray-400 mb-6 max-w-md">
-             Open to opportunities in Full-Stack Development and AI Engineering. 
-             Let's build something scalable together.
-           </p>
-           
-           <a 
-             href="https://drive.google.com/file/d/1VRcHh48iSYPGJD-3TFiaxvCk9AqC2XCz/view?usp=sharing"
-             target="_blank"
-             rel="noopener noreferrer"
-             className="flex items-center gap-3 px-6 py-3 bg-terminal-green text-black font-bold hover:shadow-[0_0_20px_rgba(0,255,0,0.6)] hover:bg-[#33ff33] transition-all group"
-           >
-             <Download className="group-hover:animate-bounce" size={20} />
-             <span>DOWNLOAD_RESUME.pdf</span>
-           </a>
+          <p className="text-gray-400 mb-6 max-w-md">
+            Open to opportunities in Full-Stack Development and AI Engineering.
+            Let's build something scalable together.
+          </p>
+
+          <a
+            href="https://drive.google.com/file/d/1xWgwZtmHhLriROcZ6T_fJ3u_85xblOPb/view?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-6 py-3 bg-terminal-green text-black font-bold hover:shadow-[0_0_20px_rgba(0,255,0,0.6)] hover:bg-[#33ff33] transition-all group"
+          >
+            <Download className="group-hover:animate-bounce" size={20} />
+            <span>DOWNLOAD_RESUME.pdf</span>
+          </a>
         </div>
       </div>
 
