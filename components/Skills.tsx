@@ -73,7 +73,7 @@ const Skills: React.FC = () => {
             >
               {/* Glow ring on hover */}
               <div
-                className="absolute inset-0 rounded-xl border border-terminal-green/0 group-hover:border-terminal-green/60 transition-all duration-300 group-hover:shadow-[0_0_18px_rgba(0,255,0,0.35)]"
+                className="absolute inset-0 rounded-xl border border-terminal-green/0 group-hover:border-terminal-green/40 transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(0,204,68,0.2)]"
                 style={{ borderRadius: 10 }}
               />
               <img

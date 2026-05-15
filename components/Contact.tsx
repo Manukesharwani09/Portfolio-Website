@@ -25,7 +25,7 @@ const Contact: React.FC = () => {
             href="https://drive.google.com/file/d/1xWgwZtmHhLriROcZ6T_fJ3u_85xblOPb/view?usp=sharing"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 px-6 py-3 bg-terminal-green text-black font-bold hover:shadow-[0_0_20px_rgba(0,255,0,0.6)] hover:bg-[#33ff33] transition-all group"
+            className="flex items-center gap-3 px-6 py-3 bg-terminal-green text-black font-bold hover:shadow-[0_0_14px_rgba(0,204,68,0.3)] hover:bg-[#00aa33] transition-all group"
           >
             <Download className="group-hover:animate-bounce" size={20} />
             <span>DOWNLOAD_RESUME.pdf</span>

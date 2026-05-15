@@ -11,7 +11,7 @@ const TerminalCard: React.FC<TerminalCardProps> = ({ children, className = '', h
     <div 
       className={`
         relative border border-terminal-green/40 bg-black p-6 
-        ${hoverEffect ? 'hover:shadow-[0_0_20px_rgba(0,255,0,0.2)] hover:border-terminal-green' : ''} 
+        ${hoverEffect ? 'hover:shadow-[0_0_12px_rgba(0,204,68,0.12)] hover:border-terminal-green' : ''} 
         transition-all duration-300 group ${className}
       `}
     >

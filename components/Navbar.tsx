@@ -53,7 +53,7 @@ const Navbar: React.FC = () => {
             <button
               key={item.id}
               onClick={() => scrollToSection(item.id)}
-              className="text-sm text-gray-400 hover:text-terminal-green hover:shadow-[0_0_10px_rgba(0,255,0,0.4)] transition-all font-mono"
+              className="text-sm text-gray-400 hover:text-terminal-green hover:shadow-[0_0_8px_rgba(0,204,68,0.25)] transition-all font-mono"
             >
               {item.label}
             </button>

@@ -35,7 +35,7 @@ const TerminalWindow: React.FC = () => {
   return (
     <div className="relative w-full max-w-lg hidden lg:block">
       {/* Window chrome */}
-      <div className="border border-terminal-green/25 bg-black/80 backdrop-blur-sm overflow-hidden shadow-[0_0_60px_rgba(0,255,0,0.08)]">
+      <div className="border border-terminal-green/20 bg-black/80 backdrop-blur-sm overflow-hidden shadow-[0_0_30px_rgba(0,204,68,0.05)]">
         {/* Title bar */}
         <div className="flex items-center gap-2 px-4 py-2.5 border-b border-terminal-green/15 bg-terminal-green/5">
           <Circle size={8} className="fill-red-500/70 text-red-500/70" />
@@ -69,7 +69,7 @@ const TerminalWindow: React.FC = () => {
       {/* Decorative corner glow */}
       <div
         className="absolute -bottom-8 -right-8 w-48 h-48 pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(0,255,0,0.07) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(0,255,0,0.02) 0%, transparent 70%)' }}
       />
     </div>
   );
@@ -83,7 +83,7 @@ const Hero: React.FC = () => {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0,255,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,0,0.03) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(rgba(0,255,0,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,0,0.02) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
         }}
       />
@@ -110,7 +110,6 @@ const Hero: React.FC = () => {
             <span className="block text-5xl md:text-7xl text-white">Manu</span>
             <span
               className="block text-5xl md:text-7xl text-terminal-green"
-              style={{ textShadow: '0 0 80px rgba(0,255,0,0.18)' }}
             >
               Kesharwani
             </span>
@@ -152,7 +151,7 @@ const Hero: React.FC = () => {
               href="https://drive.google.com/file/d/1xWgwZtmHhLriROcZ6T_fJ3u_85xblOPb/view?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-5 py-2.5 bg-terminal-green text-black text-sm font-bold hover:bg-[#33ff33] hover:shadow-[0_0_24px_rgba(0,255,0,0.4)] transition-all duration-200 group"
+              className="flex items-center gap-2 px-5 py-2.5 bg-terminal-green text-black text-sm font-bold hover:bg-[#00aa33] hover:shadow-[0_0_12px_rgba(0,204,68,0.2)] transition-all duration-200 group"
             >
               <Download size={14} />
               Resume
