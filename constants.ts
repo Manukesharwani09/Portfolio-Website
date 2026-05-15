@@ -50,35 +50,46 @@ export const PROJECTS: Project[] = [
 ];
 
 export const BOOKS: Book[] = [
-  { title: "The Haunting of Hill House", author: "Shirley Jackson", category: "HORROR" },
-  { title: "I Too Had a Love Story", author: "Ravinder Singh", category: "ROMANCE" },
-  { title: "Why Not Me?", author: "Anubhav Agrawal", category: "ROMANCE" },
-  { title: "Me Before You", author: "Jojo Moyes", category: "ROMANCE" },
-  { title: "Wish I Could Tell You", author: "Durjoy Datta", category: "ROMANCE" },
-  { title: "The Perfect Us", author: "Durjoy Datta", category: "ROMANCE" },
-  { title: "Everything, Everything", author: "Nicola Yoon", category: "ROMANCE" },
-  { title: "It Ends With Us", author: "Colleen Hoover", category: "ROMANCE" },
-  { title: "It Starts With Us", author: "Colleen Hoover", category: "ROMANCE" },
-  { title: "Never Never", author: "Colleen Hoover & Tarryn Fisher", category: "ROMANCE" },
-  { title: "The Fault in Our Stars", author: "John Green", category: "ROMANCE" },
+  // ── Best first 4 (shown by default) ──────────────────────────
+  { title: "Atomic Habits", author: "James Clear", category: "SELF-HELP" },
   { title: "Rich Dad Poor Dad", author: "Robert Kiyosaki", category: "FINANCE" },
+  { title: "The Silent Patient", author: "Alex Michaelides", category: "MYSTERY" },
+  { title: "Ikigai", author: "Héctor García & Francesc Miralles", category: "SELF-HELP" },
+
+  // ── More self-help / mindset ──────────────────────────────────
+  { title: "The Subtle Art of Not Giving a F*ck", author: "Mark Manson", category: "SELF-HELP" },
+  { title: "Attitude Is Everything", author: "Jeff Keller", category: "SELF-HELP" },
+  { title: "The Amazing Secrets of the Bhagavad Gita", author: "Gaur Gopal Das", category: "SELF-HELP" },
+  { title: "Bhagavad Gita", author: "Vyasa", category: "SELF-HELP" },
+
+  // ── Thriller / Mystery ────────────────────────────────────────
   { title: "Marry Me, Stranger", author: "Novoneel Chakraborty", category: "THRILLER" },
   { title: "All Yours, Stranger", author: "Novoneel Chakraborty", category: "THRILLER" },
   { title: "Forget Me Not, Stranger", author: "Novoneel Chakraborty", category: "THRILLER" },
-  { title: "Harry Potter and the Philosopher’s Stone", author: "J.K. Rowling", category: "FAMOUS" },
+  { title: "The Clocks", author: "Agatha Christie", category: "MYSTERY" },
+  { title: "The Girl in Room 105", author: "Chetan Bhagat", category: "MYSTERY" },
+
+  // ── Sci-Fi / Famous ──────────────────────────────────────────
+  { title: "Dune", author: "Frank Herbert", category: "FAMOUS" },
+  { title: "Harry Potter and the Philosopher's Stone", author: "J.K. Rowling", category: "FAMOUS" },
   { title: "Harry Potter and the Chamber of Secrets", author: "J.K. Rowling", category: "FAMOUS" },
   { title: "Harry Potter and the Half-Blood Prince", author: "J.K. Rowling", category: "FAMOUS" },
-  { title: "Ikigai", author: "Héctor García & Francesc Miralles", category: "SELF-HELP" },
-  { title: "The Amazing Secrets of the Bhagavad Gita", author: "Gaur Gopal Das", category: "SELF-HELP" },
-  { title: "The Clocks", author: "Agatha Christie", category: "MYSTERY" },
-  { title: "The Silent Patient", author: "Alex Michaelides", category: "MYSTERY" },
-  { title: "The Girl in Room 105", author: "Chetan Bhagat", category: "MYSTERY" },
-  { title: "Atomic Habits", author: "James Clear", category: "TO BE READ" },
-  { title: "Attitude Is Everything", author: "Jeff Keller", category: "TO BE READ" },
-  { title: "The Subtle Art of Not Giving a F*ck", author: "Mark Manson", category: "TO BE READ" },
-  { title: "Better Than the Best Friend", author: "Wattpad / Indie", category: "TO BE READ" },
-  { title: "A Girl Who Fell in Love with Her Best Friend", author: "Wattpad / Indie", category: "TO BE READ" },
-  { title: "Can Love Happen Twice?", author: "Ravinder Singh", category: "TO BE READ" },
-  { title: "Dune", author: "Frank Herbert", category: "TO BE READ" },
-  { title: "Bhagavad Gita", author: "Vyasa", category: "TO BE READ" },
+
+  // ── Horror ───────────────────────────────────────────────────
+  { title: "The Haunting of Hill House", author: "Shirley Jackson", category: "HORROR" },
+
+  // ── Romance (below the fold) ─────────────────────────────────
+  { title: "The Fault in Our Stars", author: "John Green", category: "ROMANCE" },
+  { title: "Me Before You", author: "Jojo Moyes", category: "ROMANCE" },
+  { title: "It Ends With Us", author: "Colleen Hoover", category: "ROMANCE" },
+  { title: "It Starts With Us", author: "Colleen Hoover", category: "ROMANCE" },
+  { title: "Never Never", author: "Colleen Hoover & Tarryn Fisher", category: "ROMANCE" },
+  { title: "I Too Had a Love Story", author: "Ravinder Singh", category: "ROMANCE" },
+  { title: "Can Love Happen Twice?", author: "Ravinder Singh", category: "ROMANCE" },
+  { title: "Why Not Me?", author: "Anubhav Agrawal", category: "ROMANCE" },
+  { title: "Wish I Could Tell You", author: "Durjoy Datta", category: "ROMANCE" },
+  { title: "The Perfect Us", author: "Durjoy Datta", category: "ROMANCE" },
+  { title: "Everything, Everything", author: "Nicola Yoon", category: "ROMANCE" },
+  { title: "Better Than the Best Friend", author: "Wattpad / Indie", category: "ROMANCE" },
+  { title: "A Girl Who Fell in Love with Her Best Friend", author: "Wattpad / Indie", category: "ROMANCE" },
 ];
