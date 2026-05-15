@@ -1,119 +1,172 @@
-import React from 'react';
-import { Github, Code2, Twitter, Linkedin, MapPin, Briefcase, Download, ArrowRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Github, Code2, Twitter, Linkedin, Download, ArrowRight, Circle } from 'lucide-react';
 import { SOCIAL_LINKS } from '../constants';
 import Typewriter from './Typewriter';
+
+// Fake terminal lines that type out one by one
+const TERMINAL_LINES = [
+  { text: '$ curl api.manukesharwani.dev/profile', color: 'text-terminal-green' },
+  { text: '{', color: 'text-gray-400' },
+  { text: '  "name": "Manu Kesharwani",', color: 'text-gray-300', indent: true },
+  { text: '  "role": "Software Engineer Intern",', color: 'text-gray-300', indent: true },
+  { text: '  "company": "Melento",', color: 'text-terminal-green/80', indent: true },
+  { text: '  "location": "Bengaluru, India",', color: 'text-gray-300', indent: true },
+  { text: '  "stack": [', color: 'text-gray-300', indent: true },
+  { text: '    "Node.js", "Next.js", "TypeScript",', color: 'text-yellow-400/80', indent: true },
+  { text: '    "MongoDB", "Redis", "AWS"', color: 'text-yellow-400/80', indent: true },
+  { text: '  ],', color: 'text-gray-300', indent: true },
+  { text: '  "dsa": { "solved": 813, "rating": 1686 },', color: 'text-blue-400/80', indent: true },
+  { text: '  "cgpa": 8.68,', color: 'text-purple-400/80', indent: true },
+  { text: '  "openToWork": true', color: 'text-terminal-green', indent: true },
+  { text: '}', color: 'text-gray-400' },
+  { text: '✓ 200 OK  •  48ms', color: 'text-terminal-green/60' },
+];
+
+const TerminalWindow: React.FC = () => {
+  const [visibleCount, setVisibleCount] = useState(0);
+
+  useEffect(() => {
+    if (visibleCount >= TERMINAL_LINES.length) return;
+    const delay = visibleCount === 0 ? 1800 : 220;
+    const t = setTimeout(() => setVisibleCount(v => v + 1), delay);
+    return () => clearTimeout(t);
+  }, [visibleCount]);
+
+  return (
+    <div className="relative w-full max-w-lg hidden lg:block">
+      {/* Window chrome */}
+      <div className="border border-terminal-green/25 bg-black/80 backdrop-blur-sm overflow-hidden shadow-[0_0_60px_rgba(0,255,0,0.08)]">
+        {/* Title bar */}
+        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-terminal-green/15 bg-terminal-green/5">
+          <Circle size={8} className="fill-red-500/70 text-red-500/70" />
+          <Circle size={8} className="fill-yellow-500/70 text-yellow-500/70" />
+          <Circle size={8} className="fill-green-500/70 text-green-500/70" />
+          <span className="ml-2 text-[11px] text-terminal-green/40 font-mono">bash — manu@portfolio: ~</span>
+        </div>
+
+        {/* Terminal content */}
+        <div className="p-5 font-mono text-[12px] space-y-0.5 min-h-[340px]">
+          {TERMINAL_LINES.slice(0, visibleCount).map((line, i) => (
+            <div
+              key={i}
+              className={`${line.color} leading-relaxed transition-opacity duration-150`}
+            >
+              {line.text}
+            </div>
+          ))}
+          {visibleCount < TERMINAL_LINES.length && (
+            <span className="inline-block w-2 h-3.5 bg-terminal-green animate-blink align-middle" />
+          )}
+          {visibleCount >= TERMINAL_LINES.length && (
+            <div className="mt-3 text-terminal-green flex items-center gap-1">
+              <span>$ </span>
+              <span className="inline-block w-2 h-3.5 bg-terminal-green animate-blink align-middle" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Decorative corner glow */}
+      <div
+        className="absolute -bottom-8 -right-8 w-48 h-48 pointer-events-none"
+        style={{ background: 'radial-gradient(circle, rgba(0,255,0,0.07) 0%, transparent 70%)' }}
+      />
+    </div>
+  );
+};
 
 const Hero: React.FC = () => {
   return (
     <section className="min-h-[92vh] flex flex-col justify-center pt-20 pb-10 relative overflow-hidden">
 
-      {/* Subtle grid */}
+      {/* Grid background */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0,255,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,0,0.04) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(rgba(0,255,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,0,0.03) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
         }}
       />
-      {/* Glow blob behind name */}
-      <div
-        className="absolute top-1/3 left-0 w-96 h-96 pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, rgba(0,255,0,0.06) 0%, transparent 70%)',
-          transform: 'translate(-30%, -30%)',
-        }}
-      />
 
-      {/* Boot messages — subtle, small */}
-      <div className="mb-10 font-mono text-[11px] text-terminal-green/35 space-y-0.5">
-        <div><Typewriter text="> portfolio_v1.0.0 initialized" speed={30} /></div>
-        <div><Typewriter text="> connection established. [OK]" delay={900} speed={25} /></div>
+      {/* Boot line */}
+      <div className="mb-10 font-mono text-[11px] text-terminal-green/30 space-y-0.5">
+        <div><Typewriter text="> portfolio_v2.0 — connection established [OK]" speed={28} /></div>
       </div>
 
-      <div className="space-y-6 relative z-10 max-w-4xl">
+      {/* Two-column layout */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-12 lg:gap-16 relative z-10">
 
-        {/* Status pill */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-terminal-green/25 bg-terminal-green/5 text-[11px] font-mono text-terminal-green/60 w-fit">
-          <span className="w-1.5 h-1.5 rounded-full bg-terminal-green animate-pulse shrink-0" />
-          <Briefcase size={10} />
-          <span>SWE Intern @ Melento</span>
-          <span className="text-terminal-green/25">|</span>
-          <MapPin size={10} />
-          <span>Bengaluru</span>
-        </div>
+        {/* LEFT: Content */}
+        <div className="flex-1 space-y-6 min-w-0">
 
-        {/* Name — both parts visible, strong hierarchy */}
-        <div>
+          {/* Status badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-terminal-green/25 bg-terminal-green/5 text-[11px] font-mono text-terminal-green/60 w-fit rounded-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-terminal-green animate-pulse shrink-0" />
+            <span>Open to opportunities · SWE Intern @ Melento</span>
+          </div>
+
+          {/* Name */}
           <h1 className="font-bold tracking-tight leading-none">
-            <span className="block text-6xl md:text-8xl text-white/90">
-              Manu
-            </span>
+            <span className="block text-5xl md:text-7xl text-white">Manu</span>
             <span
-              className="block text-6xl md:text-8xl text-terminal-green"
-              style={{ textShadow: '0 0 60px rgba(0,255,0,0.2)' }}
+              className="block text-5xl md:text-7xl text-terminal-green"
+              style={{ textShadow: '0 0 80px rgba(0,255,0,0.18)' }}
             >
               Kesharwani
             </span>
           </h1>
-        </div>
 
-        {/* Role */}
-        <div className="font-mono text-gray-400 text-base md:text-lg">
-          <span className="text-terminal-green/60 mr-2">$</span>
-          <Typewriter
-            text="Full-Stack Engineer · Backend Systems · DSA"
-            delay={1600}
-            speed={30}
-          />
-        </div>
+          {/* Role */}
+          <div className="font-mono text-gray-400 text-sm md:text-base">
+            <span className="text-terminal-green/50 mr-2">$</span>
+            <Typewriter
+              text="Full-Stack Engineer · Backend Systems · DSA"
+              delay={1600}
+              speed={30}
+            />
+          </div>
 
-        {/* Tagline */}
-        <p className="text-gray-500 text-sm md:text-base font-mono max-w-lg border-l-2 border-terminal-green/30 pl-4 leading-relaxed">
-          <Typewriter
-            text="Building scalable systems — from REST APIs and Redis to Next.js and AWS."
-            delay={3200}
-            speed={25}
-          />
-          <span className="animate-blink inline-block w-2 h-4 bg-terminal-green align-middle ml-0.5" />
-        </p>
+          {/* Tagline */}
+          <p className="text-gray-600 text-sm font-mono max-w-md border-l-2 border-terminal-green/25 pl-4 leading-relaxed">
+            Building at the intersection of scalable backend systems, clean APIs, and fast frontend experiences.
+          </p>
 
-        {/* Stats row */}
-        <div className="flex flex-wrap gap-6 text-xs font-mono pt-1">
-          {[
-            { value: '813+', label: 'DSA Problems' },
-            { value: '1686', label: 'Contest Rating' },
-            { value: '8.68', label: 'CGPA' },
-            { value: '1+', label: 'Year Exp' },
-          ].map(({ value, label }) => (
-            <div key={label} className="flex flex-col">
-              <span className="text-terminal-green text-xl font-bold leading-none">{value}</span>
-              <span className="text-gray-600 text-[10px] mt-0.5">{label}</span>
-            </div>
-          ))}
-        </div>
+          {/* Stats */}
+          <div className="flex flex-wrap gap-8">
+            {[
+              { value: '813+', label: 'Problems Solved' },
+              { value: '1686', label: 'Contest Rating' },
+              { value: '8.68', label: 'CGPA' },
+              { value: '1+', label: 'Year Exp' },
+            ].map(({ value, label }) => (
+              <div key={label}>
+                <div className="text-terminal-green text-2xl font-bold font-mono leading-none">{value}</div>
+                <div className="text-gray-600 text-[10px] font-mono mt-0.5 uppercase tracking-wider">{label}</div>
+              </div>
+            ))}
+          </div>
 
-        {/* CTAs */}
-        <div className="flex flex-wrap items-center gap-3 pt-2">
-          {/* Primary: Resume */}
-          <a
-            href="https://drive.google.com/file/d/1xWgwZtmHhLriROcZ6T_fJ3u_85xblOPb/view?usp=sharing"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-2.5 bg-terminal-green text-black text-sm font-bold hover:bg-[#33ff33] hover:shadow-[0_0_24px_rgba(0,255,0,0.45)] transition-all duration-200 group"
-          >
-            <Download size={14} />
-            Resume
-            <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
-          </a>
-
-          {/* Secondary socials */}
-          <div className="flex items-center gap-2">
-            <SocialButton href={SOCIAL_LINKS.github} icon={<Github size={16} />} label="GitHub" />
-            <SocialButton href={SOCIAL_LINKS.leetcode} icon={<Code2 size={16} />} label="LeetCode" />
-            <SocialButton href={SOCIAL_LINKS.twitter} icon={<Twitter size={16} />} label="X" />
-            <SocialButton href={SOCIAL_LINKS.linkedin} icon={<Linkedin size={16} />} label="LinkedIn" />
+          {/* CTAs */}
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="https://drive.google.com/file/d/1xWgwZtmHhLriROcZ6T_fJ3u_85xblOPb/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-terminal-green text-black text-sm font-bold hover:bg-[#33ff33] hover:shadow-[0_0_24px_rgba(0,255,0,0.4)] transition-all duration-200 group"
+            >
+              <Download size={14} />
+              Resume
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+            </a>
+            <SocialButton href={SOCIAL_LINKS.github} icon={<Github size={15} />} label="GitHub" />
+            <SocialButton href={SOCIAL_LINKS.leetcode} icon={<Code2 size={15} />} label="LeetCode" />
+            <SocialButton href={SOCIAL_LINKS.twitter} icon={<Twitter size={15} />} label="X" />
+            <SocialButton href={SOCIAL_LINKS.linkedin} icon={<Linkedin size={15} />} label="LinkedIn" />
           </div>
         </div>
+
+        {/* RIGHT: Fake terminal */}
+        <TerminalWindow />
       </div>
     </section>
   );
@@ -127,10 +180,10 @@ const SocialButton: React.FC<{ href: string; icon: React.ReactNode; label: strin
     target="_blank"
     rel="noopener noreferrer"
     title={label}
-    className="flex items-center gap-1.5 px-3 py-2.5 border border-terminal-green/30 text-terminal-green/70 text-xs hover:border-terminal-green hover:text-terminal-green hover:bg-terminal-green/8 transition-all duration-200"
+    className="flex items-center gap-1.5 px-3 py-2.5 border border-terminal-green/30 text-terminal-green/70 text-xs hover:border-terminal-green hover:text-terminal-green transition-all duration-200"
   >
     {icon}
-    <span className="font-mono hidden sm:block">{label}</span>
+    <span className="font-mono">{label}</span>
   </a>
 );
 
