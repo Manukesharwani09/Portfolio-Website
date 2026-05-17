@@ -1,9 +1,12 @@
 export interface Project {
+  id: number;
   title: string;
   description: string;
+  bullets?: string[];
   tech: string[];
   github: string;
-  id: number;
+  demo?: string | null;
+  type?: string;
 }
 
 export interface Book {

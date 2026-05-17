@@ -22,30 +22,62 @@ export const PROJECTS: Project[] = [
   {
     id: 1,
     title: "CodeVerse",
-    description: "A VS Code–like online editor with real-time execution, auth, and Pro features.",
+    description: "A VS Code–like online code editor with real-time multi-language execution, Pro subscription, and auth.",
+    bullets: [
+      "Supports 10+ languages via Piston API with real-time execution",
+      "Pro plan with LemonSqueezy payments — full billing flow",
+      "Auth via Clerk with role-based access (free vs Pro)",
+      "Persistent code storage using Convex real-time database",
+    ],
     tech: ["Next.js", "React", "Convex", "Clerk", "Piston API", "LemonSqueezy"],
-    github: "https://github.com/Manukesharwani09/CodeVerse"
+    github: "https://github.com/Manukesharwani09/CodeVerse",
+    demo: "https://code-verse-plum.vercel.app",
+    type: "FULLSTACK",
   },
   {
     id: 2,
     title: "ZapFind",
-    description: "EV charging locator with booking system and Node.js backend.",
+    description: "EV charging station locator with real-time availability, map-based search, and slot booking.",
+    bullets: [
+      "Integrates OpenChargeMap API for live station data across India",
+      "Map-based search with geolocation and filter by connector type",
+      "Slot booking system with Node.js + MongoDB backend",
+      "Responsive UI with HTML/CSS — works on mobile",
+    ],
     tech: ["Node.js", "MongoDB", "HTML/CSS", "OpenChargeMap API"],
-    github: "https://github.com/kushagra2413/Zapfind"
+    github: "https://github.com/kushagra2413/Zapfind",
+    demo: null,
+    type: "BACKEND",
   },
   {
     id: 3,
     title: "BookWorm",
-    description: "AI-based semantic book recommender using vector search + zero-shot classification.",
+    description: "AI-powered semantic book recommender using vector embeddings and zero-shot genre classification.",
+    bullets: [
+      "Vector search with ChromaDB — finds semantically similar books",
+      "Zero-shot classification with Hugging Face Transformers",
+      "LangChain pipeline for query processing and retrieval",
+      "Gradio UI — deployable as a standalone web app",
+    ],
     tech: ["Python", "LangChain", "Hugging Face", "Gradio", "ChromaDB"],
-    github: "https://github.com/Manukesharwani09/semantic-book-recommender"
+    github: "https://github.com/Manukesharwani09/semantic-book-recommender",
+    demo: null,
+    type: "AI/ML",
   },
   {
     id: 4,
     title: "E-Commerce App",
-    description: "A scalable MERN-based e-commerce platform.",
-    tech: ["MERN Stack", "Redux", "Stripe"],
-    github: "https://github.com/Manukesharwani09/e-commerce-app"
+    description: "Scalable MERN e-commerce platform with cart, auth, Stripe checkout, and admin dashboard.",
+    bullets: [
+      "Full cart + wishlist with Redux state management",
+      "Stripe payments with webhook-based order confirmation",
+      "JWT auth with protected routes for admin panel",
+      "Admin dashboard: product CRUD, order management",
+    ],
+    tech: ["MERN Stack", "Redux", "Stripe", "JWT"],
+    github: "https://github.com/Manukesharwani09/e-commerce-app",
+    demo: null,
+    type: "FULLSTACK",
   }
 ];
 
