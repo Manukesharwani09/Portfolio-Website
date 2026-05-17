@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, MapPin, ExternalLink, Lightbulb, Wrench, Zap, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Lightbulb, Wrench, Zap, AlertTriangle, Shield, Database } from 'lucide-react';
 
 const devlogs: Record<string, any> = {
   melento: {
@@ -8,66 +8,121 @@ const devlogs: Record<string, any> = {
     company: 'Melento (Formerly Signdesk)',
     period: 'Jan 2026 – Present',
     location: 'Bengaluru, India',
-    overview: `Working as a Software Engineer Intern at Melento (formerly Signdesk), a fintech/legaltech startup building document signing and payment automation infrastructure. My work spans backend API development, distributed systems challenges, and third-party API integrations.`,
+    overview: `Melento (formerly Signdesk) is a fintech/legaltech startup building document signing, MSME verification, and B2B payment automation infrastructure used by enterprises across India. As a Software Engineer Intern, I own end-to-end feature delivery on the payment module — from distributed session handling and async callback pipelines to third-party API integrations and financial accuracy fixes. Every problem here had real money or compliance implications.`,
     sections: [
       {
         icon: 'zap',
-        title: 'Payment Workflow Automation',
-        content: `Built and optimized asynchronous payment workflows using Node.js, Express.js, MongoDB, and Redis. This included:
-- **Webhook integrations** with payment gateways for real-time event processing.
-- **Callback handling** for async operations with retry logic.
-- **Cron-based retry mechanisms** for failed payment flows — ensuring reliability even under network instability.
+        title: 'Distributed Session Locking — Preventing Duplicate Payment Attempts',
+        content: `**Problem:** Two users could open the same payment link simultaneously, both click "Proceed to Pay", and both get redirected to the gateway — creating duplicate transactions and finance reconciliation nightmares.
 
-The challenge was handling race conditions in distributed callback processing. I solved this by implementing Redis-based distributed locks so only one process handles a payment event at a time.`,
+**What I built:** A session validation layer using Redis SET NX (atomic set-if-not-exists) that fires before the gateway redirect. If a session is already active for a payment link, the second user sees a "Payment in progress" block instead of proceeding.
+
+- **Redis SETNX** with a TTL ensures the lock expires automatically if the user abandons the flow mid-way.
+- No database writes needed for lock checks — pure Redis, sub-millisecond latency.
+- Handles edge cases: session expiry, gateway timeout, user back-button navigation.
+
+This eliminated a class of production bugs where our reconciliation team had to manually reverse duplicate charges.`,
       },
       {
         icon: 'wrench',
-        title: 'Session Handling & Concurrency with Redis',
-        content: `Implemented payment session management using Redis to handle concurrency across multiple service instances. Key problems faced:
+        title: 'Idempotent Callback Retry System — Cron-Based, No Duplicates',
+        content: `**Problem:** Payment callbacks (both internal product callbacks and client webhooks) were failing silently due to network issues, and the retry cron job was blindly re-triggering all failed callbacks — sending duplicate events to clients.
 
-- **Stale session data**: Multiple service pods were reading stale data from MongoDB. Fixed by using Redis as the single source of truth for active sessions with TTL-based expiry.
-- **Race conditions on concurrent requests**: Used Redis SET NX (atomic set-if-not-exists) to implement session locking.
-- Also built SMS/email notification workflows and invoice generation/download features integrated with the session state.`,
+**Root cause:** The cron job lacked idempotency. Each retry run fetched failed records and fired them without checking if a previous run already succeeded mid-flight.
+
+**What I built:**
+- **Idempotency key** on every callback record — a SHA hash of (payment_id + event_type + timestamp).
+- Before each retry, the system checks if the callback already delivered a 2xx at any point in history.
+- Strict separation: **client callbacks** (to org-configured webhook URLs) and **internal product callbacks** are tracked independently — a client failure never blocks the internal pipeline.
+- Cron intervals are configurable per environment; staging runs every 5 min, production every 1 min.
+
+Reduced duplicate callback incidents from multiple per day to zero since deployment.`,
       },
       {
         icon: 'alert',
-        title: 'AWS S3 & ClearTax API Integration',
-        content: `Handled secure document storage and GSTIN verification workflows:
+        title: 'Organization-Level Dynamic Webhook Routing',
+        content: `**Problem:** The centralized payment module had a single hardcoded callback destination. As Melento onboarded more enterprise clients, each needed their own webhook endpoint for payment events — there was no way to configure this per organization.
 
-- **AWS S3** for B2B invoice storage with signed URL generation for secure, time-limited downloads.
-- **ClearTax API** for GSTIN verification during the invoicing flow.
-- Implemented proper IAM role scoping and bucket policies to ensure documents are only accessible to authorized users.
+**What I designed & built:**
+- Added a **webhook_url** field to Organization Settings schema (MongoDB).
+- Modified the payment transaction flow: at the time of transaction initiation, the system reads the org's configured webhook URL and passes it to the payment module as part of the transaction context.
+- Payment module now dynamically routes the webhook payload to the org-specific URL on completion.
+- **Fallback behavior:** If no webhook URL is configured, the system silently skips — no errors thrown.
 
-The tricky part was streaming large documents through the API without buffering the entire file in memory — solved using Node.js streams piped directly to S3.`,
+This enabled self-serve webhook configuration for enterprise clients without any hardcoded routing logic.`,
+      },
+      {
+        icon: 'shield',
+        title: 'ClearTax GSTIN Address Validation & Secure Invoice Links',
+        content: `**Two independent problems fixed in the same sprint:**
+
+**1. ClearTax GST Mismatch Bug:**
+When generating B2B invoices via ClearTax, the system wasn't cross-validating the GSTIN address submitted by the initiator against the registered address in the GST database. Clients were submitting incorrect addresses that went undetected until government filing.
+- Added a validation step that compares ClearTax API response address with initiator-submitted address before invoice generation proceeds.
+- Error thrown with clear message: *"GSTIN address does not match the address provided by the initiator."*
+
+**2. Insecure Invoice Download Links (SMS):**
+Invoice links sent via SMS were publicly accessible URLs — anyone with the link could download any invoice.
+- Replaced static links with **time-limited signed URLs** (AWS S3 presigned URLs, 15-min TTL).
+- SMS now contains a secure signed link that expires — even if intercepted, it's useless after expiry.
+- B2B invoices additionally require a session token for download.
+
+Both fixes were compliance-critical — the GSTIN one would have caused GST filing rejections.`,
       },
       {
         icon: 'lightbulb',
-        title: 'UDYAM Verification Migration',
-        content: `Migrated the UDYAM (MSME registration) verification system from **Surepass** to **TimbleGlance** (a third-party API provider). This was a critical migration since it involved:
+        title: 'UDYAM (MSME) API Migration & Async Payment Callbacks Without Invoice Dependency',
+        content: `**UDYAM Migration (Surepass → TimbleGlance):**
+The previous MSME verification provider (Surepass) had uptime issues. Migrated to TimbleGlance API:
+\`POST https://www.timbleglance.com/api/Verify_Udyam\` with \`registration_no\` payload.
+- Wrote a **provider-agnostic adapter layer** — the rest of the codebase calls a single \`verifyUdyam()\` function; only the adapter knows which provider is active.
+- Response schema differences handled inside the adapter with field mapping.
+- Zero changes required in controllers or business logic.
 
-- **Technical evaluation** of both APIs — comparing response schemas, reliability, and pricing.
-- Writing a **compatibility layer** so the rest of the codebase didn't need changes.
-- Implementing **MongoDB field-level encryption** for PII (Personally Identifiable Information) across three database collections storing Aadhaar/PAN/GSTIN data.
+**Payment Callback Decoupling:**
+Previously, the payment completion callback waited for invoice generation to finish before firing. Invoice generation (ClearTax signing, PDF rendering) can take 3–10 seconds.
+- Decoupled callback from invoice: callback fires immediately on payment success with payment details.
+- Invoice is generated async; if invoice is ready it's included in callback payload, otherwise omitted.
+- Clients receive payment confirmation instantly — invoice arrives in a follow-up event or can be fetched via a separate endpoint.
 
-The hardest problem here was backward compatibility — existing encrypted documents had to be re-encrypted with the new key scheme without downtime.`,
+This reduced client-visible payment confirmation latency from ~10s to <500ms.`,
+      },
+      {
+        icon: 'database',
+        title: 'Multi-Page Invoice Calculation Fix & SMS/Email Notification Pipeline',
+        content: `**Invoice Calculation Bug (Multi-page with GST):**
+For payments with >3 line items and GST enabled, the invoice split across 2 pages. Page 1 showed line item charges; Page 2 showed GST + processing fees. But both pages displayed the *cumulative total* — meaning Page 1 showed the full amount including GST that wasn't on that page yet.
+- Fixed subtotal calculation to be page-scoped: each page shows only its own subtotals.
+- Final total remains on the last page as a cumulative.
+- Required understanding the PDF generation pipeline and modifying the template rendering logic.
+
+**SMS/Email Notification Pipeline:**
+If a payment link was created with only a mobile number (no email), the system didn't send SMS on payment success — the signed invoice was silently dropped.
+- Added fallback: if \`email_id\` is null but \`mobile\` is present, trigger SMS with a secure invoice link.
+- SMS triggered for: payment link invitation, payment success, and invoice ready events.
+- Email pipeline unchanged; SMS and email now operate independently.`,
       },
     ],
-    tech: ['Node.js', 'Express.js', 'MongoDB', 'Redis', 'AWS S3', 'ClearTax API', 'REST APIs', 'JWT', 'Cron Jobs'],
+    tech: ['Node.js', 'Express.js', 'MongoDB', 'Redis', 'AWS S3', 'ClearTax API', 'TimbleGlance API', 'REST APIs', 'Cron Jobs', 'JWT', 'Presigned URLs', 'Webhooks'],
     learnings: [
-      'Distributed systems require explicit coordination — never assume shared state.',
-      'MongoDB field-level encryption is powerful but requires careful key management.',
-      'Redis is not just a cache — it\'s a coordination primitive for distributed systems.',
-      'Third-party API migrations need compatibility layers to avoid big-bang rewrites.',
-      'Streaming > buffering for large files in memory-constrained services.',
+      'Redis SETNX is the cleanest primitive for distributed mutual exclusion — simpler than any library.',
+      'Idempotency keys must be designed before writing retry logic, not bolted on after.',
+      'Decoupling async side-effects (invoice gen) from critical-path responses (payment confirmation) is always worth it.',
+      'Provider-agnostic adapters make third-party migrations near-zero-risk.',
+      'Security in fintech is not optional — presigned URLs, TTLs, and session validation are baseline, not bonuses.',
+      'Financial systems demand page-level accuracy, not just total accuracy.',
     ],
   },
 };
+
 
 const iconMap: Record<string, React.ReactNode> = {
   zap: <Zap size={18} />,
   wrench: <Wrench size={18} />,
   alert: <AlertTriangle size={18} />,
   lightbulb: <Lightbulb size={18} />,
+  shield: <Shield size={18} />,
+  database: <Database size={18} />,
 };
 
 const renderContent = (text: string) => {

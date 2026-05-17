@@ -283,7 +283,7 @@ const Hero: React.FC = () => {
               { value: '813+', label: 'Problems Solved' },
               { value: '1686', label: 'Contest Rating' },
               { value: '8.68', label: 'CGPA' },
-              { value: '1+', label: 'Year Exp' },
+              { value: '5+', label: 'months Exp' },
             ].map(({ value, label }) => (
               <div key={label}>
                 <div className="text-terminal-green text-2xl font-bold font-mono leading-none">{value}</div>
