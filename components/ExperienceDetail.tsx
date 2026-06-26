@@ -3,6 +3,59 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, Lightbulb, Wrench, Zap, AlertTriangle, Shield, Database } from 'lucide-react';
 
 const devlogs: Record<string, any> = {
+  tapinvest: {
+    role: 'Software Engineer Intern',
+    company: 'Tap Invest',
+    period: 'Jun 2026 – Present',
+    location: 'Bengaluru, India',
+    overview: `Tap Invest is a fintech platform focused on alternative investment products. As a Software Engineer Intern, I work across a multi-service backend architecture (Go + Java) and an internal React admin dashboard — shipping features that automate high-volume investment operations and partner management workflows.`,
+    sections: [
+      {
+        icon: 'zap',
+        title: 'Bulk RFQ Order Processing System',
+        content: `**Problem:** RFQ orders for investment transactions were created individually, making large-scale operations slow and error-prone.
+
+**What I built:** A bulk processing workflow that validates investment eligibility, deduplicates records, and batches database reads to minimise query overhead. Only eligible investments proceed to the external RFQ service.
+
+- Pre-validation filters out already-processed and ineligible records before hitting the DB.
+- In-memory lookup maps replace per-record queries — significant speedup on large batches.
+- Partial success model: each record carries its own status, so one failure doesn't abort the batch.
+- Detailed per-record success/failure reporting for easy retry and audit.`,
+      },
+      {
+        icon: 'wrench',
+        title: 'Bulk UES User Configuration Management',
+        content: `**Problem:** Assigning engagement configurations to users was a one-by-one manual operation — unworkable at scale.
+
+**What I built:** An end-to-end bulk configuration workflow spanning a React admin dashboard, API gateway, and Go backend service.
+
+- Searchable config dropdown with dynamic options pulled from the backend.
+- Input parser handles both newline-separated and comma-separated user ID lists.
+- Backend filters users who already have an applicable config, don't exist, are duplicates, or are ineligible by business rule.
+- Response categorises skipped users by failure reason — copyable lists per category for easy retries.
+- Batched DB reads and bulk inserts keep load low even for thousands of users.`,
+      },
+      {
+        icon: 'shield',
+        title: 'Client Unlink Workflow with Investment Validation',
+        content: `**Problem:** Partners had no way to deactivate client associations through the dashboard — and blindly unlinking a client with active investments could corrupt business records.
+
+**What I built:** A soft-delete unlink workflow integrated across frontend, API gateway, and a Java/Spring Boot backend service.
+
+- Backend checks for existing investment records before allowing unlink.
+- Clients without investments unlink immediately; clients with investments trigger a confirmation step.
+- Reused existing service, repository, and transaction patterns — no new architectural layers introduced.
+- Changes coordinated across multiple repositories with no impact on existing functionality.`,
+      },
+    ],
+    tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Java', 'Spring Boot', 'React', 'TypeScript', 'REST APIs', 'Multi-service Architecture'],
+    learnings: [
+      'Batch DB reads + in-memory maps are the first move whenever N-record loops show up.',
+      'Partial success models are essential for bulk ops — failing the whole batch on one bad record is never acceptable.',
+      'Soft-deletes with pre-validation guards prevent silent data integrity bugs downstream.',
+      'Coordinating changes across multiple services requires agreeing on contracts before writing any code.',
+    ],
+  },
   melento: {
     role: 'Software Engineer Intern',
     company: 'Melento (Formerly Signdesk)',

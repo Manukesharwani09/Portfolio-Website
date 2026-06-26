@@ -6,6 +6,21 @@ import { ExternalLink, MapPin, Calendar, ChevronRight } from 'lucide-react';
 
 const experiences = [
   {
+    id: 'tapinvest',
+    role: 'Software Engineer Intern',
+    company: 'Tap Invest',
+    companyFull: 'Tap Invest',
+    period: 'Jun 2026 – Present',
+    location: 'Bengaluru, India',
+    type: 'Full-time Internship',
+    tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Java', 'Spring Boot', 'React', 'TypeScript', 'REST APIs'],
+    highlights: [
+      'Built a bulk RFQ order processing system with batched DB ops, duplicate prevention, and per-record partial success reporting.',
+      'Designed a bulk UES user configuration workflow across frontend, API gateway, and backend — handling thousands of users in one operation.',
+      'Implemented a client unlink workflow with investment validation and a confirmation flow to prevent accidental data loss.',
+    ],
+  },
+  {
     id: 'melento',
     role: 'Software Engineer Intern',
     company: 'Melento',
