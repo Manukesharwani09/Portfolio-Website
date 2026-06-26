@@ -4,7 +4,7 @@ import { ArrowLeft, Calendar, MapPin, Lightbulb, Wrench, Zap, AlertTriangle, Shi
 
 const devlogs: Record<string, any> = {
   tapinvest: {
-    role: 'Software Engineer Intern',
+    role: 'Backend Developer Intern',
     company: 'Tap Invest',
     period: 'Jun 2026 – Present',
     location: 'Bengaluru, India',

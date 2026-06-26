@@ -7,7 +7,7 @@ import { ExternalLink, MapPin, Calendar, ChevronRight } from 'lucide-react';
 const experiences = [
   {
     id: 'tapinvest',
-    role: 'Software Engineer Intern',
+    role: 'Backend Developer Intern',
     company: 'Tap Invest',
     companyFull: 'Tap Invest',
     period: 'Jun 2026 – Present',

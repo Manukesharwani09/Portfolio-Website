@@ -24,7 +24,7 @@ Each internship has a dedicated devlog page (`/experience/:id`) with a problem �
 
 | Company | Role | Period |
 |---|---|---|
-| Tap Invest | Software Engineer Intern | Jun 2026 – Present |
+| Tap Invest | Backend Developer Intern | Jun 2026 – Present |
 | Melento (formerly Signdesk) | Software Engineer Intern | Jan 2026 – Present |
 
 ## Tech Stack

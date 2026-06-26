@@ -24,7 +24,7 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
   ],
   whoami: () => [
     { text: 'Manu Kesharwani', color: 'text-terminal-green' },
-    { text: 'Software Engineer Intern @ Melento (formerly Signdesk)', color: 'text-gray-300' },
+    { text: 'Backend Developer Intern @ Tap Invest', color: 'text-gray-300' },
     { text: 'B.Tech CSE · BMS Institute of Technology, Bengaluru', color: 'text-gray-300' },
     { text: 'CGPA: 8.68 | Grad: 2026', color: 'text-purple-400/80' },
     { text: '' },
@@ -42,14 +42,21 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
     { text: '  AWS, Git, GitHub, VS Code, Postman', color: 'text-yellow-400/80' },
   ],
   experience: () => [
+    { text: '[ Tap Invest ]', color: 'text-terminal-green' },
+    { text: '  Role     : Backend Developer Intern', color: 'text-gray-300' },
+    { text: '  Period   : Jun 2026 – Present', color: 'text-gray-400' },
+    { text: '  Location : Bengaluru, India', color: 'text-gray-400' },
+    { text: '' },
+    { text: '  • Bulk RFQ order processing with batched DB ops', color: 'text-gray-300' },
+    { text: '  • Bulk UES user config management (Go + React)', color: 'text-gray-300' },
+    { text: '  • Client unlink workflow with investment validation', color: 'text-gray-300' },
+    { text: '' },
     { text: '[ Melento (formerly Signdesk) ]', color: 'text-terminal-green' },
     { text: '  Role     : Software Engineer Intern', color: 'text-gray-300' },
     { text: '  Period   : Jan 2026 – Present', color: 'text-gray-400' },
-    { text: '  Location : Bengaluru, India', color: 'text-gray-400' },
     { text: '' },
     { text: '  • Built async payment workflows with Redis & MongoDB', color: 'text-gray-300' },
     { text: '  • Integrated AWS & ClearTax APIs for e-invoicing', color: 'text-gray-300' },
-    { text: '  • Migrated UDYAM certification module (Node.js)', color: 'text-gray-300' },
     { text: '  • Implemented distributed locks for race conditions', color: 'text-gray-300' },
   ],
   education: () => [
@@ -100,8 +107,8 @@ const INTRO_LINES = [
   { text: '$ curl api.manukesharwani.dev/profile', color: 'text-terminal-green' },
   { text: '{', color: 'text-gray-400' },
   { text: '  "name": "Manu Kesharwani",', color: 'text-gray-300' },
-  { text: '  "role": "Software Engineer Intern",', color: 'text-gray-300' },
-  { text: '  "company": "Melento",', color: 'text-terminal-green/80' },
+  { text: '  "role": "Backend Developer Intern",', color: 'text-gray-300' },
+  { text: '  "company": "Tap Invest",', color: 'text-terminal-green/80' },
   { text: '  "stack": ["Node.js","Next.js","TypeScript","Redis","AWS"],', color: 'text-yellow-400/80' },
   { text: '  "dsa": { "solved": 813, "rating": 1686 },', color: 'text-blue-400/80' },
   { text: '  "openToWork": true', color: 'text-terminal-green' },
@@ -249,7 +256,7 @@ const Hero: React.FC = () => {
           {/* Status badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-terminal-green/25 bg-terminal-green/5 text-[11px] font-mono text-terminal-green/60 w-fit rounded-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-terminal-green animate-pulse shrink-0" />
-            <span>Open to opportunities · SWE Intern @ Melento</span>
+            <span>Open to opportunities · Backend Dev Intern @ Tap Invest</span>
           </div>
 
           {/* Name */}
