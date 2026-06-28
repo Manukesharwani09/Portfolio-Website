@@ -6,6 +6,7 @@ export const SOCIAL_LINKS = {
   twitter: 'https://x.com/smilelikemanu',
   linkedin: '#', // Placeholder as requested
   email: 'mkesharwani125@gmail.com',
+  resume: 'https://drive.google.com/file/d/1hwlZRG6rHasgqq7xFszYi4BZtxEInfm8/view?usp=sharing',
 };
 
 export const SKILLS = [

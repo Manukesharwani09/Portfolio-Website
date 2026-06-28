@@ -9,6 +9,12 @@ const certs = [
     date: 'Feb 2026',
     link: 'https://drive.google.com/drive/u/0/folders/1MedK4hv5Rc6sDrjNBa6Wz7V-oqc4ylrd',
   },
+  {
+    name: 'Social Networks',
+    issuer: 'NPTEL · IIT Madras',
+    date: '',
+    link: 'https://drive.google.com/file/d/1EHodXgdhMQw6JVUFp96a9Vbj6PgDLUas/view',
+  },
 ];
 
 const Certificates: React.FC = () => (
@@ -24,7 +30,7 @@ const Certificates: React.FC = () => (
             <Award size={14} className="text-terminal-green/50 shrink-0" />
             <div>
               <span className="text-white text-sm font-mono">{c.name}</span>
-              <span className="text-gray-600 text-xs font-mono ml-3">{c.issuer} · {c.date}</span>
+              <span className="text-gray-600 text-xs font-mono ml-3">{c.issuer}{c.date ? ` · ${c.date}` : ''}</span>
             </div>
           </div>
           <a

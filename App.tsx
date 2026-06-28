@@ -21,8 +21,8 @@ const MainPage: React.FC = () => (
     <main className="max-w-7xl mx-auto px-6 relative z-10" id="home">
       <Hero />
       <About />
-      <Skills />
       <Experience />
+      <Skills />
       <Certificates />
       <Projects />
       <LeetCode />

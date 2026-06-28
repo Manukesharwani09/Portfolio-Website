@@ -77,7 +77,7 @@ const Contact: React.FC = () => {
               <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
             </a>
             <a
-              href="https://drive.google.com/file/d/1xWgwZtmHhLriROcZ6T_fJ3u_85xblOPb/view?usp=sharing"
+              href={SOCIAL_LINKS.resume}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 px-5 py-3 border border-terminal-green/30 text-terminal-green text-sm font-mono hover:bg-terminal-green/10 transition-all"

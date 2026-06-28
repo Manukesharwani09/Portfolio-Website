@@ -4,8 +4,8 @@ import { Menu, X, Terminal } from 'lucide-react';
 const NAV_ITEMS = [
   { label: '~/home', id: 'home' },
   { label: './about', id: 'about' },
-  { label: './skills', id: 'skills' },
   { label: './experience', id: 'experience' },
+  { label: './skills', id: 'skills' },
   { label: './projects', id: 'projects' },
   { label: './stats', id: 'leetcode' },
   { label: './library', id: 'books' },

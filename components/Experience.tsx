@@ -25,7 +25,7 @@ const experiences = [
     role: 'Software Engineer Intern',
     company: 'Melento',
     companyFull: 'Melento (Formerly Signdesk)',
-    period: 'Jan 2026 – Present',
+    period: 'Jan 2026 – Jun 2026',
     location: 'Bengaluru, India',
     type: 'Full-time Internship',
     tech: ['Node.js', 'Express.js', 'MongoDB', 'Redis', 'AWS S3', 'REST APIs', 'UDYAM API'],

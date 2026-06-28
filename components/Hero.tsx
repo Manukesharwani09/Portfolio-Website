@@ -26,7 +26,7 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
     { text: 'Manu Kesharwani', color: 'text-terminal-green' },
     { text: 'Backend Developer Intern @ Tap Invest', color: 'text-gray-300' },
     { text: 'B.Tech CSE · BMS Institute of Technology, Bengaluru', color: 'text-gray-300' },
-    { text: 'CGPA: 8.68 | Grad: 2026', color: 'text-purple-400/80' },
+    { text: 'CGPA: 8.73 | Graduated: 2026', color: 'text-purple-400/80' },
     { text: '' },
     { text: 'Building scalable backend systems and full-stack web apps.', color: 'text-gray-400' },
     { text: 'Open to full-time SWE roles. ✓', color: 'text-terminal-green' },
@@ -53,7 +53,7 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
     { text: '' },
     { text: '[ Melento (formerly Signdesk) ]', color: 'text-terminal-green' },
     { text: '  Role     : Software Engineer Intern', color: 'text-gray-300' },
-    { text: '  Period   : Jan 2026 – Present', color: 'text-gray-400' },
+    { text: '  Period   : Jan 2026 – Jun 2026', color: 'text-gray-400' },
     { text: '' },
     { text: '  • Built async payment workflows with Redis & MongoDB', color: 'text-gray-300' },
     { text: '  • Integrated AWS & ClearTax APIs for e-invoicing', color: 'text-gray-300' },
@@ -62,7 +62,7 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
   education: () => [
     { text: 'BMS Institute of Technology & Management', color: 'text-terminal-green' },
     { text: '  Degree : B.Tech Computer Science & Engineering', color: 'text-gray-300' },
-    { text: '  CGPA   : 8.68 / 10', color: 'text-purple-400/80' },
+    { text: '  CGPA   : 8.73 / 10', color: 'text-purple-400/80' },
     { text: '  Year   : 2022 – 2026', color: 'text-gray-400' },
     { text: '  City   : Bengaluru, India', color: 'text-gray-400' },
   ],
@@ -289,7 +289,7 @@ const Hero: React.FC = () => {
             {[
               { value: '813+', label: 'Problems Solved' },
               { value: '1686', label: 'Contest Rating' },
-              { value: '8.68', label: 'CGPA' },
+              { value: '8.73', label: 'CGPA' },
               { value: '5+', label: 'months Exp' },
             ].map(({ value, label }) => (
               <div key={label}>
@@ -302,7 +302,7 @@ const Hero: React.FC = () => {
           {/* CTAs */}
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href="https://drive.google.com/file/d/1xWgwZtmHhLriROcZ6T_fJ3u_85xblOPb/view?usp=sharing"
+              href={SOCIAL_LINKS.resume}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-5 py-2.5 bg-terminal-green text-black text-sm font-bold hover:bg-[#00aa33] hover:shadow-[0_0_12px_rgba(0,204,68,0.2)] transition-all duration-200 group"
