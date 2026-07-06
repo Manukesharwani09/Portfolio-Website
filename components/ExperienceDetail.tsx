@@ -47,6 +47,20 @@ const devlogs: Record<string, any> = {
 - Reused existing service, repository, and transaction patterns — no new architectural layers introduced.
 - Changes coordinated across multiple repositories with no impact on existing functionality.`,
       },
+      {
+        icon: 'wrench',
+        title: 'Cashflow Calculator Redesign — ISIN-Direct Pricing Engine',
+        content: `**Problem:** The cashflow calculator required an IPC (ISINPlatformConfig) deal lookup to price bonds — a seller/state/deal-specific layer that added unnecessary coupling for a general-purpose pricing tool.
+
+**What I built:** Rewrote the calculator end-to-end across three services — Go backend (Horizon), API gateway (Sonar), and React admin dashboard (Radar) — to work directly with ISINs.
+
+- New \`GET /api/v1/isin/all\` endpoint to fetch all ISINs; new \`POST /api/v1/cashflow/calculate-by-isin\` endpoint that accepts an ISIN with either yield or clean price (mutual exclusion enforced).
+- Caller-supplied settlement date with full backend validation: working day, not a record date for that ISIN, within issue–maturity range.
+- **IST timezone fix:** frontend ISO-8601 UTC timestamps were shifting dates back by one day — backend normalises to IST midnight before all date checks and response formatting.
+- Rewrote the React dialog: replaced deal/IPC dropdown with a searchable ISIN dropdown, merged the separate yield→price and price→yield flows into a single unified calculator.
+- Replaced debounced auto-calculate with an explicit **Calculate button** — prevents partial API calls while the user is still typing.
+- Results panel: total consideration (hero metric), full pricing grid (clean/dirty price, accrued interest, stamp duty, NPV, expected returns), copyable per-field and full-summary.`,
+      },
     ],
     tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Java', 'Spring Boot', 'React', 'TypeScript', 'REST APIs', 'Multi-service Architecture'],
     learnings: [
@@ -54,6 +68,7 @@ const devlogs: Record<string, any> = {
       'Partial success models are essential for bulk ops — failing the whole batch on one bad record is never acceptable.',
       'Soft-deletes with pre-validation guards prevent silent data integrity bugs downstream.',
       'Coordinating changes across multiple services requires agreeing on contracts before writing any code.',
+      'Timezone normalisation on the backend is non-negotiable when the frontend sends UTC timestamps for date-sensitive business logic.',
     ],
   },
   melento: {
