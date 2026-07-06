@@ -48,6 +48,19 @@ const devlogs: Record<string, any> = {
 - Changes coordinated across multiple repositories with no impact on existing functionality.`,
       },
       {
+        icon: 'database',
+        title: 'Form 121 — Depository-wise Payout Summary Endpoint',
+        content: `**Problem:** No API existed to support Form 121 generation — users had no way to get a breakdown of their upcoming interest payouts grouped by depository (CDSL / NSDL / NO_DEP) for the current financial year.
+
+**What I built:** End-to-end across two services — Go backend (Horizon) and Java BFF (Pulse).
+
+- New \`GET /api/v1/investments/form-121/:userId\` in Horizon: joins \`investments\` + \`investment_transactions\`, filters for \`INVESTMENT_SUCCESS\` + \`PAYOUT\` transactions with \`ideal_payout_date\` in the current Indian financial year (April 1–March 31, calculated in IST).
+- **Depository classification logic:** CDSL → \`ben_id\` present, \`dp_id\` null; NSDL → both present; NO_DEP → otherwise.
+- Returns \`COUNT(DISTINCT isin)\` and \`SUM(ideal_interest_amount)\` per depository group in a single query.
+- Pulse BFF proxies the endpoint at \`GET /v1/investment/form-121\` — userId resolved from JWT (\`X-Bs-Auth\` header), following existing auth patterns.
+- Added DTOs, repository interface, service, controller, and route registration across both repos with no changes to existing investment flows.`,
+      },
+      {
         icon: 'wrench',
         title: 'Cashflow Calculator Redesign — ISIN-Direct Pricing Engine',
         content: `**Problem:** The cashflow calculator required an IPC (ISINPlatformConfig) deal lookup to price bonds — a seller/state/deal-specific layer that added unnecessary coupling for a general-purpose pricing tool.
