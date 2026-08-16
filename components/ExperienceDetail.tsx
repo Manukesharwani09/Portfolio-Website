@@ -74,14 +74,48 @@ const devlogs: Record<string, any> = {
 - Replaced debounced auto-calculate with an explicit **Calculate button** — prevents partial API calls while the user is still typing.
 - Results panel: total consideration (hero metric), full pricing grid (clean/dirty price, accrued interest, stamp duty, NPV, expected returns), copyable per-field and full-summary.`,
       },
+      {
+        icon: 'database',
+        title: 'Deridata Integration — Foundation Pipeline (Phase 1)',
+        content: `**Problem:** No pipeline existed to pull bond covenant, security-detail, and secondary-trade data from Deridata (a third-party market data provider) into our system — neither the ops dashboard nor the mobile app had any way to access this data.
+
+**What I built:** The foundational integration — Go client, 8 new entities, a repository layer, and 6 REST endpoints — that Phase 2's structured parsing and ops UI were later built on top of.
+
+- Deridata API client with **HMAC-SHA256 auth** and an atomic UUID request counter, covering all 5 upstream endpoints (issue detail, calculator, secondary trades, security/covenant, documents).
+- 8 new entities/tables (\`isins\`, \`isin_ratings\`, \`redemption_schedules\`, \`cashflows\`, \`secondary_trades\`, \`trade_histories\`, \`security_details\`, \`financial_covenants\`), with a repository per entity.
+- **Trade history accumulates, never overwrites**: appended and deduped by \`trade_date\` on every sync, since Deridata's API only exposes a rolling 15-day window — this is how the system builds up trade history beyond what the upstream provider itself retains.
+- Core fetch flow: 4 upstream calls in parallel via \`errgroup\`, persisted in a single DB transaction. Calculator failures are non-fatal — cashflows are skipped but the rest of the save proceeds. \`singleflight\` collapses duplicate concurrent fetches for the same ISIN.
+- Parsing helpers for Deridata's inconsistent formats: 3 different date formats, ₹-prefixed/comma-separated decimals, \`"110%"\` → \`1.1\` security-cover conversion.
+- 6 new endpoints (1 fetch, 3 refresh, 2 serve) under \`/api/v1/deridata/*\`.
+- **Debugged a prod 500:** traced to the API gateway missing its upstream base-URL env var and silently falling back to a hardcoded stage default that carried a route prefix already removed from prod — fixed by requiring the env var to be set explicitly per environment instead of relying on a default.`,
+      },
+      {
+        icon: 'lightbulb',
+        title: 'Deal Detail 3.0 — Deridata Covenant Parsing & Multi-Service Rollout',
+        content: `**Problem:** Bond deal pages had no live view of a bond's financial covenants, security details, or secondary trade history — that data lived in Deridata (a third-party market data provider) as unstructured free text, with no path into our system for ops to review, edit, or serve to the mobile app.
+
+**What I built:** A full pipeline — Go parser, two new ops-edited tables, five new/changed endpoints, and integration across four services (Snape, Sonar, Pulse, Radar).
+
+- **Covenant parser** turns Deridata's free-text fields into structured JSON — categorises into 7 types (min net worth, CAD ratio, D:E ratio, GNPA/NNPA/PAR90, promoter shareholding, etc.), collapses multi-threshold metrics into timeline arrays, and normalises inconsistent date formats (\`30-Sep-2026\` → \`30 Sep'26\`).
+- **Promoter Commitment parsing** handles named individuals, comma/\`&\`-separated groups, and mixed separate + combined shareholding on the same ISIN.
+- New \`deal_financial_covenants\` / \`deal_security_details\` tables hold the ops-edited source of truth, kept distinct from the raw Deridata-synced tables used for audit.
+- \`POST /deridata/save-covenant-with-photos\`: a one-call multipart endpoint for backfill scripts — covenant JSON plus actual photo/document files in a single atomic request, with the backend uploading to S3 directly instead of a presigned-URL round trip.
+- Extended the BFF's ISIN detail endpoint to merge in covenant/security/trade data from a new dedicated endpoint — designed to fail silently (nulls) rather than break the mobile response if the upstream call is unreachable.
+- Built the ops-dashboard editor UI: covenant/security-detail forms, promoter photo upload, and a "Fetch from Deridata" button that pre-fills everything from a live pull.
+- Seeded and regression-tested all 92 ISINs from the team's reference dataset after every parser fix — most recent full pass confirmed zero parsing defects.`,
+      },
     ],
-    tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Java', 'Spring Boot', 'React', 'TypeScript', 'REST APIs', 'Multi-service Architecture'],
+    tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Java', 'Spring Boot', 'React', 'TypeScript', 'Next.js', 'AWS S3', 'REST APIs', 'Multi-service Architecture'],
     learnings: [
       'Batch DB reads + in-memory maps are the first move whenever N-record loops show up.',
       'Partial success models are essential for bulk ops — failing the whole batch on one bad record is never acceptable.',
       'Soft-deletes with pre-validation guards prevent silent data integrity bugs downstream.',
       'Coordinating changes across multiple services requires agreeing on contracts before writing any code.',
       'Timezone normalisation on the backend is non-negotiable when the frontend sends UTC timestamps for date-sensitive business logic.',
+      'Free-text parsers need regression testing against real-world data at scale, not just handwritten fixtures — re-ran all 92 reference ISINs after every parser change.',
+      'Fail-silent vs fail-loud on a downstream dependency is a deliberate architecture decision to confirm explicitly with the team, not an implicit default.',
+      'Never rely on a hardcoded default URL across environments — explicit env var configuration prevents subtle stage/prod route-prefix mismatches.',
+      '`singleflight` is the right tool to collapse duplicate concurrent fetches for the same key — cheaper than locking or queuing at the DB layer.',
     ],
   },
   melento: {
