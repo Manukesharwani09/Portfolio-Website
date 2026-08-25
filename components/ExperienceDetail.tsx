@@ -104,8 +104,20 @@ const devlogs: Record<string, any> = {
 - Built the ops-dashboard editor UI: covenant/security-detail forms, promoter photo upload, and a "Fetch from Deridata" button that pre-fills everything from a live pull.
 - Seeded and regression-tested all 92 ISINs from the team's reference dataset after every parser fix — most recent full pass confirmed zero parsing defects.`,
       },
+      {
+        icon: 'alert',
+        title: 'Bonds Directory (Phase 3) — NSE Universe Sync & Public Directory Design',
+        content: `**Problem:** BondScanner needed a public, SEO-facing Bonds Directory covering ~1,700 bonds and 412 issuers — pulling from a new NSE ISIN universe feed, aggregating issuer-level stats, and surfacing live-on-platform status — none of which existed in the deal-detail-only architecture built in earlier phases.
+
+**What I'm building:** Currently leading the backend design and build-out — the NSE universe sync is shipped, with the directory's core endpoints, issuer aggregation, and live-status caching in active development.
+
+- **Diagnosed and rerouted an infra blocker:** NSE's bond-universe API sits behind Akamai bot-management that silently drops Go's default HTTP client (TCP/TLS connects, request never gets a response) — instead of fighting the anti-bot layer directly, relocated the fetch to an existing internal service with a working NSE session flow, adding a new method there and reusing its Redis-cached auth token and 401-retry logic.
+- Shipped the sync job: diffs NSE's full Corporate Bond universe against existing ISINs, applies a belt-and-suspenders ISIN-prefix filter, and pulls new/changed bonds from Deridata in sequential batches — deliberately capped to a single batch for now while verifying end-to-end safety against Deridata's own rate limits.
+- Designing the remaining directory surface: a validated-field-allow-list bonds search endpoint (public, unauthenticated — no raw filter/sort passthrough), a dedicated bond-detail endpoint with cashflow face-value scaling, an issuer entity with refresh-time aggregate recomputation (coupon range, maturity range, dominant rating by agency-scale rank), and a Redis cache-aside layer for live-on-platform status backed by the investment platform's config service.
+- Scoped an adjacent feature ("Interested in this bond" capture) into a different service after determining it didn't belong in this service's data layer.`,
+      },
     ],
-    tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Java', 'Spring Boot', 'React', 'TypeScript', 'Next.js', 'AWS S3', 'REST APIs', 'Multi-service Architecture'],
+    tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Redis', 'Java', 'Spring Boot', 'React', 'TypeScript', 'Next.js', 'AWS S3', 'REST APIs', 'Multi-service Architecture'],
     learnings: [
       'Batch DB reads + in-memory maps are the first move whenever N-record loops show up.',
       'Partial success models are essential for bulk ops — failing the whole batch on one bad record is never acceptable.',
@@ -115,6 +127,8 @@ const devlogs: Record<string, any> = {
       'Free-text parsers need regression testing against real-world data at scale, not just handwritten fixtures — re-ran all 92 reference ISINs after every parser change.',
       'Fail-silent vs fail-loud on a downstream dependency is a deliberate architecture decision to confirm explicitly with the team, not an implicit default.',
       'Never rely on a hardcoded default URL across environments — explicit env var configuration prevents subtle stage/prod route-prefix mismatches.',
+      'When a third-party network layer silently blocks a default HTTP client (anti-bot vendors like Akamai), check for an existing internal service with a working session first — reinventing evasion logic is the wrong fix.',
+      'Scoping a feature into the right service boundary matters as much as the implementation itself — moved an adjacent capture feature out of the data-layer service once its actual ownership became clear.',
       '`singleflight` is the right tool to collapse duplicate concurrent fetches for the same key — cheaper than locking or queuing at the DB layer.',
     ],
   },
