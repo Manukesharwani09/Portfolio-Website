@@ -116,6 +116,19 @@ const devlogs: Record<string, any> = {
 - Designing the remaining directory surface: a validated-field-allow-list bonds search endpoint (public, unauthenticated — no raw filter/sort passthrough), a dedicated bond-detail endpoint with cashflow face-value scaling, an issuer entity with refresh-time aggregate recomputation (coupon range, maturity range, dominant rating by agency-scale rank), and a Redis cache-aside layer for live-on-platform status backed by the investment platform's config service.
 - Scoped an adjacent feature ("Interested in this bond" capture) into a different service after determining it didn't belong in this service's data layer.`,
       },
+      {
+        icon: 'database',
+        title: 'TheFixedIncome External Offers — Multi-Vendor Proxy Architecture',
+        content: `**Problem:** BondScanner had no way to surface live bond/G-Sec offers from TheFixedIncome, an external partner API — no client existed anywhere in the stack, and the ops dashboard had no page to browse or filter this inventory.
+
+**What I built:** A full live pass-through integration spanning three services (Snape, Sonar, Radar) with zero local storage — every request proxies straight through to the partner API.
+
+- New Snape client with **Redis-cached bearer-token auth**: token minted via the partner's \`get-token\` endpoint, cached with a long TTL, and transparently regenerated — with a distributed lock to prevent duplicate token requests under concurrent load — whenever a call comes back \`401\`.
+- Deliberately **untyped JSON passthrough** for the offer payload itself (only the request-side filter struct is typed) — new fields the partner adds surface automatically with a frontend-only change, no backend redeploy needed.
+- Designed the query-param boundary so **Sonar stays fully vendor-agnostic** — it forwards raw query values with no knowledge of filter fields at all — while Snape owns the one typed adapter mapping our filters to the partner's exact param names. A second vendor integration later only touches Snape.
+- Verified live API behavior with direct curl testing before committing to a design — e.g. confirmed the partner's \`order_by\` throws a 500 on any nested field name, so only flat top-level fields are exposed as sortable columns.
+- Radar page: type-scoped table (G-Sec / Bond Secondary) with a sticky ISIN column, client-side pagination and page-size selection (dataset is small enough to fetch in full per filter change), server-driven sort/filter round-tripped through Sonar → Snape → partner API, and a detail view decoding ~20 numeric enum fields (coupon type, security type, listing status, etc.) against the partner's published value tables.`,
+      },
     ],
     tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Redis', 'Java', 'Spring Boot', 'React', 'TypeScript', 'Next.js', 'AWS S3', 'REST APIs', 'Multi-service Architecture'],
     learnings: [
@@ -130,6 +143,9 @@ const devlogs: Record<string, any> = {
       'When a third-party network layer silently blocks a default HTTP client (anti-bot vendors like Akamai), check for an existing internal service with a working session first — reinventing evasion logic is the wrong fix.',
       'Scoping a feature into the right service boundary matters as much as the implementation itself — moved an adjacent capture feature out of the data-layer service once its actual ownership became clear.',
       '`singleflight` is the right tool to collapse duplicate concurrent fetches for the same key — cheaper than locking or queuing at the DB layer.',
+      'Untyped JSON passthrough at a service boundary is a deliberate tradeoff, not laziness — it buys zero backend changes when an upstream partner adds a field, worth it only when downstream never needs to act on unknown fields.',
+      'In a multi-service proxy, put vendor-specific mapping knowledge at the one layer closest to the actual vendor contract — every other layer should stay agnostic, so a second vendor integration only touches one place.',
+      'Verify undocumented third-party API behavior (sort/pagination internals especially) with real curl tests before designing around it — official docs saying nothing about a behavior is not the same as that behavior not mattering.',
     ],
   },
   melento: {
