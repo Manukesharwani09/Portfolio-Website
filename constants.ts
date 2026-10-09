@@ -4,7 +4,7 @@ export const SOCIAL_LINKS = {
   github: 'https://github.com/Manukesharwani09',
   leetcode: 'https://leetcode.com/u/manukesharwani/',
   twitter: 'https://x.com/smilelikemanu',
-  linkedin: '#', // Placeholder as requested
+  linkedin: 'https://www.linkedin.com/in/manu-kesharwani-a993022b4/',
   email: 'mkesharwani125@gmail.com',
   resume: 'https://drive.google.com/file/d/1hwlZRG6rHasgqq7xFszYi4BZtxEInfm8/view?usp=sharing',
 };

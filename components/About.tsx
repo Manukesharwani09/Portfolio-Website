@@ -14,7 +14,7 @@ const About: React.FC = () => {
 
         <p>
           <span className="text-terminal-green font-bold mr-2">&gt;</span>
-          Hands-on expertise across Go, Java (Spring Boot), Node.js, Express, PostgreSQL, MongoDB, and Redis for distributed caching & concurrency control.
+          Hands-on expertise across Go (Gin, GORM), Java (Spring Boot), PostgreSQL and Redis — distributed caching, concurrency control and cross-service workflows.
         </p>
 
         <p>

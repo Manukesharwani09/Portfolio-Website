@@ -19,9 +19,9 @@ const experiences = [
       'Built a bulk RFQ order processing system with batched DB ops, duplicate prevention, and per-record partial success reporting.',
       'Designed a bulk UES user configuration workflow across frontend, API gateway, and backend — handling thousands of users in one operation.',
       'Implemented a client unlink workflow with investment validation and a confirmation flow to prevent accidental data loss.',
-      'Built the foundational Deridata integration — Go client, 8 new entities, and 6 endpoints piping bond covenant/security/trade data into the platform.',
-      'Led Deridata Phase 2: a free-text covenant parser, ops-editable covenant/security tables, and multi-service rollout across the backend, BFF, and admin dashboard.',
-      'Leading backend design for a public Bonds Directory (Phase 3) — rerouted an NSE data sync around a bot-detection blocker and shipped the sync job powering ~1,700 bonds.',
+      'Owned the Deridata integration end-to-end across 3 phases — from the bond data pipeline and free-text covenant parser to the NSE-synced public Bonds Directory (~1,700 bonds).',
+      'Moved every refund behind a maker-checker approval that updates payments, RFQ orders and investments in one step across 4 services.',
+      'Built cross-service reconciliation that records failed workflow steps and flags investments whose services have drifted out of sync.',
     ],
   },
   {

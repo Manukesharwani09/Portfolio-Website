@@ -15,7 +15,9 @@ const Typewriter: React.FC<TypewriterProps> = ({
   className = '',
   onComplete 
 }) => {
-  const [displayText, setDisplayText] = useState('');
+  const reduceMotion =
+    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const [displayText, setDisplayText] = useState(reduceMotion ? text : '');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
 
@@ -27,7 +29,7 @@ const Typewriter: React.FC<TypewriterProps> = ({
   }, [delay]);
 
   useEffect(() => {
-    if (!hasStarted) return;
+    if (!hasStarted || reduceMotion) return;
 
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {

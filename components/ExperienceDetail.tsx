@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, MapPin, Lightbulb, Wrench, Zap, AlertTriangle, Shield, Database } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Lightbulb, Wrench, Zap, AlertTriangle, Shield, Database, ChevronDown } from 'lucide-react';
 
 const devlogs: Record<string, any> = {
   tapinvest: {
@@ -320,9 +320,32 @@ const renderContent = (text: string) => {
   });
 };
 
+const LEARNINGS_PREVIEW = 5;
+
+// Splits a section into its first paragraph (the Problem) and everything after it
+const splitContent = (content: string) => {
+  const idx = content.indexOf('\n\n');
+  return idx === -1 ? { summary: content, rest: '' } : { summary: content.slice(0, idx), rest: content.slice(idx + 2) };
+};
+
 const ExperienceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const log = id ? devlogs[id] : null;
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  const [showAllLearnings, setShowAllLearnings] = useState(false);
+
+  const toggle = (i: number) =>
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+
+  const jumpTo = (i: number) => {
+    setOpen((prev) => new Set(prev).add(i));
+    document.getElementById(`section-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   if (!log) {
     return (
@@ -340,7 +363,7 @@ const ExperienceDetail: React.FC = () => {
   return (
     <div className="min-h-screen bg-terminal-black text-terminal-green font-mono">
       {/* CRT Overlay */}
-      <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20" />
+      <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-10" />
 
       <div className="max-w-4xl mx-auto px-6 py-12 relative z-10">
         {/* Back */}
@@ -370,32 +393,87 @@ const ExperienceDetail: React.FC = () => {
           <p className="text-gray-300 leading-relaxed text-sm border-l-2 border-terminal-green/30 pl-4">{log.overview}</p>
         </div>
 
+        {/* Contents */}
+        <div className="mb-10 border border-terminal-green/20 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-terminal-green/50 font-mono">{'>'} ls ./devlog</p>
+            <button
+              onClick={() =>
+                setOpen(open.size === log.sections.length ? new Set() : new Set(log.sections.map((_: any, i: number) => i)))
+              }
+              className="text-xs text-terminal-green/60 hover:text-terminal-green transition-colors"
+            >
+              {open.size === log.sections.length ? 'collapse all' : 'expand all'}
+            </button>
+          </div>
+          <ol className="grid sm:grid-cols-2 gap-x-6 gap-y-1.5">
+            {log.sections.map((section: any, i: number) => (
+              <li key={i}>
+                <button
+                  onClick={() => jumpTo(i)}
+                  className="flex gap-2 text-left text-sm text-gray-300 hover:text-terminal-green transition-colors"
+                >
+                  <span className="text-terminal-green/50 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                  <span>{section.title.split(' — ')[0]}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+
         {/* Sections */}
-        <div className="space-y-8">
-          {log.sections.map((section: any, i: number) => (
-            <div key={i} className="border border-terminal-green/20 p-6 hover:border-terminal-green/40 transition-colors">
-              <h2 className="flex items-center gap-3 text-lg font-bold text-white mb-4">
-                <span className="text-terminal-green">{iconMap[section.icon]}</span>
-                {section.title}
-              </h2>
-              <ul className="space-y-2">
-                {renderContent(section.content)}
-              </ul>
-            </div>
-          ))}
+        <div className="space-y-4">
+          {log.sections.map((section: any, i: number) => {
+            const { summary, rest } = splitContent(section.content);
+            const isOpen = open.has(i);
+            return (
+              <div
+                key={i}
+                id={`section-${i}`}
+                className={`scroll-mt-6 border p-6 transition-colors ${isOpen ? 'border-terminal-green/40' : 'border-terminal-green/20 hover:border-terminal-green/40'}`}
+              >
+                <button onClick={() => toggle(i)} className="w-full text-left" aria-expanded={isOpen}>
+                  <h2 className="flex items-start gap-3 text-lg font-bold text-white">
+                    <span className="text-terminal-green/50 text-sm font-mono mt-1 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="text-terminal-green mt-1 shrink-0">{iconMap[section.icon]}</span>
+                    <span className="flex-1">{section.title}</span>
+                    <ChevronDown
+                      size={18}
+                      className={`text-terminal-green/60 mt-1 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                    />
+                  </h2>
+                </button>
+                <ul className="space-y-2 mt-4">{renderContent(summary)}</ul>
+                {rest && isOpen && <ul className="space-y-2 mt-2">{renderContent('\n' + rest)}</ul>}
+                {rest && !isOpen && (
+                  <button onClick={() => toggle(i)} className="mt-3 text-xs text-terminal-green/60 hover:text-terminal-green transition-colors">
+                    {'> read more'}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Learnings */}
         <div className="mt-10 border border-terminal-green/30 p-6 bg-terminal-green/5">
           <h2 className="text-lg font-bold text-white mb-4">{'>'} key_learnings</h2>
           <ul className="space-y-2">
-            {log.learnings.map((l: string, i: number) => (
+            {(showAllLearnings ? log.learnings : log.learnings.slice(0, LEARNINGS_PREVIEW)).map((l: string, i: number) => (
               <li key={i} className="flex gap-2 text-sm text-gray-300">
                 <span className="text-terminal-green shrink-0">✓</span>
-                <span>{l}</span>
+                <span>{renderInline(l)}</span>
               </li>
             ))}
           </ul>
+          {log.learnings.length > LEARNINGS_PREVIEW && (
+            <button
+              onClick={() => setShowAllLearnings((v) => !v)}
+              className="mt-4 text-xs text-terminal-green/60 hover:text-terminal-green transition-colors"
+            >
+              {showAllLearnings ? '> show less' : `> show all ${log.learnings.length}`}
+            </button>
+          )}
         </div>
 
         {/* Tech stack */}

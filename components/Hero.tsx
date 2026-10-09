@@ -28,18 +28,20 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
     { text: 'B.Tech CSE · BMS Institute of Technology, Bengaluru', color: 'text-gray-300' },
     { text: 'CGPA: 8.73 | Graduated: 2026', color: 'text-purple-400/80' },
     { text: '' },
-    { text: 'Building scalable backend systems and full-stack web apps.', color: 'text-gray-400' },
-    { text: 'Open to full-time SWE roles. ✓', color: 'text-terminal-green' },
+    { text: 'Backend developer — Go, Java, PostgreSQL and Redis.', color: 'text-gray-400' },
+    { text: 'Building multi-service fintech backends. ✓', color: 'text-terminal-green' },
   ],
   skills: () => [
     { text: 'Languages:', color: 'text-terminal-green' },
-    { text: '  JavaScript, TypeScript, Python, C++, SQL', color: 'text-yellow-400/80' },
+    { text: '  Go, Java, TypeScript, SQL, Python, C++', color: 'text-yellow-400/80' },
     { text: 'Backend:', color: 'text-terminal-green' },
-    { text: '  Node.js, Express.js, REST APIs, Redis, MongoDB, MySQL', color: 'text-yellow-400/80' },
+    { text: '  Gin, GORM, Spring Boot, REST APIs, Protocol Buffers', color: 'text-yellow-400/80' },
+    { text: 'Data:', color: 'text-terminal-green' },
+    { text: '  PostgreSQL, Redis', color: 'text-yellow-400/80' },
     { text: 'Frontend:', color: 'text-terminal-green' },
-    { text: '  React.js, Next.js, Tailwind CSS, HTML, CSS', color: 'text-yellow-400/80' },
+    { text: '  React.js, Next.js, Tailwind CSS', color: 'text-yellow-400/80' },
     { text: 'Cloud & Tools:', color: 'text-terminal-green' },
-    { text: '  AWS, Git, GitHub, VS Code, Postman', color: 'text-yellow-400/80' },
+    { text: '  AWS (S3), Git, GitHub, Postman', color: 'text-yellow-400/80' },
   ],
   experience: () => [
     { text: '[ Tap Invest ]', color: 'text-terminal-green' },
@@ -48,9 +50,9 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
     { text: '  Period   : Jun 2026 – Present', color: 'text-gray-400' },
     { text: '  Location : Bengaluru, India', color: 'text-gray-400' },
     { text: '' },
-    { text: '  • Bulk RFQ order processing with batched DB ops', color: 'text-gray-300' },
-    { text: '  • Bulk UES user config management (Go + React)', color: 'text-gray-300' },
-    { text: '  • Client unlink workflow with investment validation', color: 'text-gray-300' },
+    { text: '  • Deridata bond data pipeline → public Bonds Directory', color: 'text-gray-300' },
+    { text: '  • Refund maker-checker across 4 services', color: 'text-gray-300' },
+    { text: '  • Cross-service reconciliation & drift detection', color: 'text-gray-300' },
     { text: '' },
     { text: '[ Melento (formerly Signdesk) ]', color: 'text-terminal-green' },
     { text: '  Role     : Software Engineer Intern', color: 'text-gray-300' },
@@ -90,7 +92,7 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
   contact: () => [
     { text: 'Get in touch:', color: 'text-terminal-green' },
     { text: '  Email    : manukesharwani09@gmail.com', color: 'text-gray-300' },
-    { text: '  LinkedIn : linkedin.com/in/manukesharwani09', color: 'text-gray-300' },
+    { text: '  LinkedIn : linkedin.com/in/manu-kesharwani-a993022b4', color: 'text-gray-300' },
     { text: '  GitHub   : github.com/Manukesharwani09', color: 'text-gray-300' },
     { text: '  Twitter  : @smilelikemanu', color: 'text-gray-300' },
   ],
@@ -103,6 +105,13 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
   ],
 };
 
+// Months of experience since the first job (Jan 2026), so the stat never goes stale
+const FIRST_JOB = new Date(2026, 0, 1);
+const MONTHS_EXP = Math.max(
+  1,
+  (new Date().getFullYear() - FIRST_JOB.getFullYear()) * 12 + new Date().getMonth() - FIRST_JOB.getMonth(),
+);
+
 // ── Intro lines (auto-typed) ─────────────────────────────────────────────────
 const INTRO_LINES = [
   { text: '$ curl api.manukesharwani.dev/profile', color: 'text-terminal-green' },
@@ -110,7 +119,7 @@ const INTRO_LINES = [
   { text: '  "name": "Manu Kesharwani",', color: 'text-gray-300' },
   { text: '  "role": "SDE-1 (Backend)",', color: 'text-gray-300' },
   { text: '  "company": "Tap Invest",', color: 'text-terminal-green/80' },
-  { text: '  "stack": ["Node.js","Next.js","TypeScript","Redis","AWS"],', color: 'text-yellow-400/80' },
+  { text: '  "stack": ["Go","Java","Spring Boot","PostgreSQL","Redis"],', color: 'text-yellow-400/80' },
   { text: '  "dsa": { "solved": 813, "rating": 1686 },', color: 'text-blue-400/80' },
   { text: '  "openToWork": true', color: 'text-terminal-green' },
   { text: '}', color: 'text-gray-400' },
@@ -274,15 +283,15 @@ const Hero: React.FC = () => {
           <div className="font-mono text-gray-400 text-sm md:text-base">
             <span className="text-terminal-green/50 mr-2">$</span>
             <Typewriter
-              text="Full-Stack Engineer · Backend Systems · DSA"
+              text="Backend Developer · Go · Java · Distributed Systems"
               delay={1600}
               speed={30}
             />
           </div>
 
           {/* Tagline */}
-          <p className="text-gray-600 text-sm font-mono max-w-md border-l-2 border-terminal-green/25 pl-4 leading-relaxed">
-            Building at the intersection of scalable backend systems, clean APIs, and fast frontend experiences.
+          <p className="text-gray-400 text-sm font-mono max-w-md border-l-2 border-terminal-green/25 pl-4 leading-relaxed">
+            Building scalable backend services, clean APIs and reliable money-moving workflows for fintech.
           </p>
 
           {/* Stats */}
@@ -291,11 +300,11 @@ const Hero: React.FC = () => {
               { value: '813+', label: 'Problems Solved' },
               { value: '1686', label: 'Contest Rating' },
               { value: '8.73', label: 'CGPA' },
-              { value: '5+', label: 'months Exp' },
+              { value: `${MONTHS_EXP}+`, label: 'months Exp' },
             ].map(({ value, label }) => (
               <div key={label}>
                 <div className="text-terminal-green text-2xl font-bold font-mono leading-none">{value}</div>
-                <div className="text-gray-600 text-[10px] font-mono mt-0.5 uppercase tracking-wider">{label}</div>
+                <div className="text-gray-400 text-[11px] font-mono mt-0.5 uppercase tracking-wider">{label}</div>
               </div>
             ))}
           </div>

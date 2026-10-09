@@ -2,18 +2,16 @@ import React, { useEffect, useRef } from "react";
 import SectionHeader from "./SectionHeader";
 
 const skills = [
-  { name: "React.js",    image: "/images/react2.svg" },
+  { name: "Go",         image: "/images/go.svg" },
+  { name: "Java",       image: "/images/java.svg" },
+  { name: "Spring Boot", image: "/images/spring.svg" },
+  { name: "PostgreSQL", image: "/images/postgresql.svg" },
+  { name: "React.js",   image: "/images/react2.svg" },
   { name: "Next.js",    image: "/images/next2.svg" },
-  { name: "Node.js",    image: "/images/node2.svg" },
-  { name: "Express",    image: "/images/express.svg" },
-  { name: "MongoDB",    image: "/images/mongo.svg" },
-  { name: "MySQL",      image: "/images/mysql.svg" },
   { name: "TypeScript", image: "/images/typescript.svg" },
   { name: "JavaScript", image: "/images/javascript.svg" },
   { name: "C++",        image: "/images/cpp.svg" },
   { name: "Python",     image: "/images/python.svg" },
-  { name: "HTML",       image: "/images/html.svg" },
-  { name: "CSS",        image: "/images/css.svg" },
   { name: "Tailwind",   image: "/images/tailwind.svg" },
   { name: "Redis",      image: "/images/redis.svg" },
   { name: "AWS",        image: "/images/aws.svg" },
