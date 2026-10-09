@@ -4,11 +4,12 @@ import { ArrowLeft, Calendar, MapPin, Lightbulb, Wrench, Zap, AlertTriangle, Shi
 
 const devlogs: Record<string, any> = {
   tapinvest: {
-    role: 'Backend Developer Intern',
+    role: 'SDE-1 (Backend)',
     company: 'Tap Invest',
     period: 'Jun 2026 – Present',
+    progression: 'Backend Developer Intern (Jun – Sep 2026) → SDE-1 (Oct 2026 – Present)',
     location: 'Bengaluru, India',
-    overview: `Tap Invest is a fintech platform focused on alternative investment products. As a Software Engineer Intern, I work across a multi-service backend architecture (Go + Java) and an internal React admin dashboard — shipping features that automate high-volume investment operations and partner management workflows.`,
+    overview: `Tap Invest is a fintech platform focused on alternative investment products. I joined as a Backend Developer Intern in June 2026 and moved to SDE-1 (Backend) in October 2026. I work across a multi-service backend architecture (Go + Java) and an internal React admin dashboard — shipping features that automate high-volume investment operations and partner management workflows.`,
     sections: [
       {
         icon: 'zap',
@@ -76,45 +77,28 @@ const devlogs: Record<string, any> = {
       },
       {
         icon: 'database',
-        title: 'Deridata Integration — Foundation Pipeline (Phase 1)',
-        content: `**Problem:** No pipeline existed to pull bond covenant, security-detail, and secondary-trade data from Deridata (a third-party market data provider) into our system — neither the ops dashboard nor the mobile app had any way to access this data.
+        title: 'Deridata Integration — Bond Data Pipeline to Public Bonds Directory (Phases 1–3)',
+        content: `**Problem:** Bond covenant, security-detail and secondary-trade data lived in Deridata (a third-party market data provider), mostly as unstructured free text — with no path into our system for ops to review it, the mobile app to show it, or a public directory to list it.
 
-**What I built:** The foundational integration — Go client, 8 new entities, a repository layer, and 6 REST endpoints — that Phase 2's structured parsing and ops UI were later built on top of.
+**What I built:** Owned the integration end-to-end across three phases — from the raw ingestion pipeline, to structured covenant parsing for Deal Detail 3.0, to an NSE-driven sync powering a public Bonds Directory — across Snape, Sonar, Pulse and Radar.
 
-- Deridata API client with **HMAC-SHA256 auth** and an atomic UUID request counter, covering all 5 upstream endpoints (issue detail, calculator, secondary trades, security/covenant, documents).
-- 8 new entities/tables (\`isins\`, \`isin_ratings\`, \`redemption_schedules\`, \`cashflows\`, \`secondary_trades\`, \`trade_histories\`, \`security_details\`, \`financial_covenants\`), with a repository per entity.
-- **Trade history accumulates, never overwrites**: appended and deduped by \`trade_date\` on every sync, since Deridata's API only exposes a rolling 15-day window — this is how the system builds up trade history beyond what the upstream provider itself retains.
-- Core fetch flow: 4 upstream calls in parallel via \`errgroup\`, persisted in a single DB transaction. Calculator failures are non-fatal — cashflows are skipped but the rest of the save proceeds. \`singleflight\` collapses duplicate concurrent fetches for the same ISIN.
-- Parsing helpers for Deridata's inconsistent formats: 3 different date formats, ₹-prefixed/comma-separated decimals, \`"110%"\` → \`1.1\` security-cover conversion.
-- 6 new endpoints (1 fetch, 3 refresh, 2 serve) under \`/api/v1/deridata/*\`.
-- **Debugged a prod 500:** traced to the API gateway missing its upstream base-URL env var and silently falling back to a hardcoded stage default that carried a route prefix already removed from prod — fixed by requiring the env var to be set explicitly per environment instead of relying on a default.`,
-      },
-      {
-        icon: 'lightbulb',
-        title: 'Deal Detail 3.0 — Deridata Covenant Parsing & Multi-Service Rollout',
-        content: `**Problem:** Bond deal pages had no live view of a bond's financial covenants, security details, or secondary trade history — that data lived in Deridata (a third-party market data provider) as unstructured free text, with no path into our system for ops to review, edit, or serve to the mobile app.
+**Phase 1 — Foundation pipeline**
+- Deridata API client with **HMAC-SHA256 auth** covering all 5 upstream endpoints, 8 new entities with a repository per entity, and 6 REST endpoints under \`/api/v1/deridata/*\`.
+- **Parallel fetch, single transaction:** 4 upstream calls via \`errgroup\`, persisted atomically; \`singleflight\` collapses duplicate concurrent fetches for the same ISIN, and calculator failures are non-fatal.
+- **Trade history accumulates, never overwrites:** deduped by \`trade_date\` on every sync, building history beyond Deridata's rolling 15-day window.
+- **Debugged a prod 500:** the API gateway was silently falling back to a hardcoded stage URL with a stale route prefix — fixed by requiring the upstream URL per environment.
 
-**What I built:** A full pipeline — Go parser, two new ops-edited tables, five new/changed endpoints, and integration across four services (Snape, Sonar, Pulse, Radar).
+**Phase 2 — Deal Detail 3.0 covenant parsing**
+- **Covenant parser** turns free text into structured JSON across 7 covenant types, collapsing multi-threshold metrics into timelines and handling named, grouped and mixed promoter shareholding.
+- Separate ops-edited tables as the source of truth, kept distinct from the raw synced tables used for audit; a one-call multipart endpoint saves covenant JSON plus photos with the backend uploading to S3 directly.
+- Ops-dashboard editor with a "Fetch from Deridata" pre-fill, and a BFF merge into the mobile ISIN detail that fails silently to nulls instead of breaking the response.
+- Regression-tested all 92 reference ISINs after every parser fix — latest full pass had zero parsing defects.
 
-- **Covenant parser** turns Deridata's free-text fields into structured JSON — categorises into 7 types (min net worth, CAD ratio, D:E ratio, GNPA/NNPA/PAR90, promoter shareholding, etc.), collapses multi-threshold metrics into timeline arrays, and normalises inconsistent date formats (\`30-Sep-2026\` → \`30 Sep'26\`).
-- **Promoter Commitment parsing** handles named individuals, comma/\`&\`-separated groups, and mixed separate + combined shareholding on the same ISIN.
-- New \`deal_financial_covenants\` / \`deal_security_details\` tables hold the ops-edited source of truth, kept distinct from the raw Deridata-synced tables used for audit.
-- \`POST /deridata/save-covenant-with-photos\`: a one-call multipart endpoint for backfill scripts — covenant JSON plus actual photo/document files in a single atomic request, with the backend uploading to S3 directly instead of a presigned-URL round trip.
-- Extended the BFF's ISIN detail endpoint to merge in covenant/security/trade data from a new dedicated endpoint — designed to fail silently (nulls) rather than break the mobile response if the upstream call is unreachable.
-- Built the ops-dashboard editor UI: covenant/security-detail forms, promoter photo upload, and a "Fetch from Deridata" button that pre-fills everything from a live pull.
-- Seeded and regression-tested all 92 ISINs from the team's reference dataset after every parser fix — most recent full pass confirmed zero parsing defects.`,
-      },
-      {
-        icon: 'alert',
-        title: 'Bonds Directory (Phase 3) — NSE Universe Sync & Public Directory Design',
-        content: `**Problem:** BondScanner needed a public, SEO-facing Bonds Directory covering ~1,700 bonds and 412 issuers — pulling from a new NSE ISIN universe feed, aggregating issuer-level stats, and surfacing live-on-platform status — none of which existed in the deal-detail-only architecture built in earlier phases.
-
-**What I'm building:** Currently leading the backend design and build-out — the NSE universe sync is shipped, with the directory's core endpoints, issuer aggregation, and live-status caching in active development.
-
-- **Diagnosed and rerouted an infra blocker:** NSE's bond-universe API sits behind Akamai bot-management that silently drops Go's default HTTP client (TCP/TLS connects, request never gets a response) — instead of fighting the anti-bot layer directly, relocated the fetch to an existing internal service with a working NSE session flow, adding a new method there and reusing its Redis-cached auth token and 401-retry logic.
-- Shipped the sync job: diffs NSE's full Corporate Bond universe against existing ISINs, applies a belt-and-suspenders ISIN-prefix filter, and pulls new/changed bonds from Deridata in sequential batches — deliberately capped to a single batch for now while verifying end-to-end safety against Deridata's own rate limits.
-- Designing the remaining directory surface: a validated-field-allow-list bonds search endpoint (public, unauthenticated — no raw filter/sort passthrough), a dedicated bond-detail endpoint with cashflow face-value scaling, an issuer entity with refresh-time aggregate recomputation (coupon range, maturity range, dominant rating by agency-scale rank), and a Redis cache-aside layer for live-on-platform status backed by the investment platform's config service.
-- Scoped an adjacent feature ("Interested in this bond" capture) into a different service after determining it didn't belong in this service's data layer.`,
+**Phase 3 — NSE universe sync & Bonds Directory**
+- Scope: a public, SEO-facing directory of ~1,700 bonds and 412 issuers.
+- **Rerouted an infra blocker:** NSE's API sits behind Akamai bot-management that silently drops Go's default HTTP client — moved the fetch into an existing internal service with a working NSE session, reusing its Redis-cached token and 401-retry logic.
+- **Shipped the sync job:** diffs NSE's Corporate Bond universe against existing ISINs and pulls new/changed bonds from Deridata in sequential batches, capped while validating against Deridata's rate limits.
+- Designing the directory surface: an allow-listed public search endpoint (no raw filter/sort passthrough), bond detail with cashflow face-value scaling, issuer-level aggregates recomputed at refresh, and a Redis cache-aside layer for live-on-platform status.`,
       },
       {
         icon: 'database',
@@ -141,6 +125,20 @@ const devlogs: Record<string, any> = {
 - **Reconcile job** checks each flagged investment against the live state of every service involved and records the inconsistencies it finds — detect-and-record only, by design.
 - Reuses each service's existing Redis and database connections instead of opening new ones; published as a versioned Go module shared by the services.
 - **End-to-end test harness** with fake external dependencies and a fault-injection proxy, covering 11 real failure scenarios, each asserted to record exactly the expected issues.`,
+      },
+      {
+        icon: 'shield',
+        title: 'Refund Module — Maker-Checker Approval & Cross-Service State Sync',
+        content: `**Problem:** Refunds could start from four different places (a Payments button, an RFQ Orders button, a status change in the investments service, and a nightly cron), none needed approval, and each one updated a different set of tables. Some paths moved the money but never told the investments service, which then rejected the final "refund succeeded" update and left notifications retrying forever. Others moved the investment but left orders live or never sent the money at all.
+
+**What I built:** One rule across four services (Mercury, Sonar, Horizon, Radar): every refund is a request in the maker-checker approval inbox, nothing changes while it waits, and the checker's approval starts the refund and moves the payment, every related RFQ order and the investment in a single step.
+
+- **Two-step API in the payments service:** a read-only \`check\` endpoint resolves any source (payment, order, investment, RFQ order or settlement) to the payment behind it, validates it and reports amount, method and trade stage without writing anything; a \`start\` endpoint, called only on approval, re-validates under the order lock and starts the refund.
+- **Explicit outcomes per gateway:** UPI refunds are marked for offline handling; net-banking refunds go to the gateway and come back as started, refused (nothing else moves) or retry-scheduled (the gateway was down, so the cron sends it later while orders and the investment have already moved).
+- **Trade stage shown, not enforced:** the checker sees whether the bonds were not placed, placed or already sold, so approval is a human decision instead of a hardcoded same-day rule; already-blocked inventory is released automatically, placed or sold units are left alone.
+- **Duplicate protection:** one open request per payment, and a second click gets a clear "awaiting approval" / "already in progress" response instead of silently doing nothing; full-amount-only refunds enforced at the gateway layer.
+- Removed the two old refund endpoints that bypassed approval, kept one narrow path for refunds triggered directly from the investments service (still refused once a trade is committed), and added a new checker permission, a refund view in the approvals inbox, and a Complete action for offline UPI refunds in the admin dashboard.
+- **End-to-end tested locally** against a fake payment gateway: 81 checks across net banking and UPI, placed and unplaced trades, gateway refusal, gateway downtime, bank-side failure, double payments and the direct-trigger path — all passing.`,
       },
     ],
     tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Redis', 'Java', 'Spring Boot', 'React', 'TypeScript', 'Next.js', 'AWS S3', 'REST APIs', 'Multi-service Architecture'],
@@ -286,33 +284,37 @@ const iconMap: Record<string, React.ReactNode> = {
   database: <Database size={18} />,
 };
 
+const renderInline = (text: string) =>
+  text.split(/(\*\*.*?\*\*|`[^`]+`)/g).map((p, j) => {
+    if (p.startsWith('**') && p.endsWith('**')) return <strong key={j} className="text-white">{p.slice(2, -2)}</strong>;
+    if (p.startsWith('`') && p.endsWith('`')) {
+      return <code key={j} className="px-1 py-0.5 text-[0.8em] bg-terminal-green/10 text-terminal-green/90 rounded-sm">{p.slice(1, -1)}</code>;
+    }
+    return p;
+  });
+
 const renderContent = (text: string) => {
   return text.split('\n').map((line, i) => {
-    if (line.startsWith('- **')) {
-      const parts = line.replace('- ', '').split(/\*\*(.*?)\*\*/g);
-      return (
-        <li key={i} className="flex gap-2 text-gray-300 text-sm">
-          <span className="text-terminal-green shrink-0 mt-0.5">›</span>
-          <span>
-            {parts.map((p, j) => j % 2 === 1 ? <strong key={j} className="text-white">{p}</strong> : p)}
-          </span>
-        </li>
-      );
-    }
     if (line.startsWith('- ')) {
       return (
-        <li key={i} className="flex gap-2 text-gray-300 text-sm">
+        <li key={i} className="flex gap-2 text-gray-300 text-sm leading-relaxed">
           <span className="text-terminal-green shrink-0 mt-0.5">›</span>
-          <span>{line.replace('- ', '')}</span>
+          <span>{renderInline(line.slice(2))}</span>
         </li>
       );
     }
     if (line.trim() === '') return <div key={i} className="h-2" />;
-    // Render bold text inline
-    const parts = line.split(/\*\*(.*?)\*\*/g);
+    // A line that is only **text** is a sub-heading (e.g. phases inside one section)
+    if (/^\*\*[^*]+\*\*$/.test(line.trim()) && !line.trim().endsWith(':**')) {
+      return (
+        <h3 key={i} className="text-sm font-bold text-terminal-green mt-4 pt-3 border-t border-terminal-green/15">
+          {line.trim().slice(2, -2)}
+        </h3>
+      );
+    }
     return (
       <p key={i} className="text-gray-300 text-sm leading-relaxed">
-        {parts.map((p, j) => j % 2 === 1 ? <strong key={j} className="text-white">{p}</strong> : p)}
+        {renderInline(line)}
       </p>
     );
   });
@@ -355,6 +357,7 @@ const ExperienceDetail: React.FC = () => {
           <div className="text-xs text-terminal-green/50 mb-2 font-mono">{'>'} cat devlog.md</div>
           <h1 className="text-3xl font-bold text-white mb-1">{log.role}</h1>
           <p className="text-terminal-green text-lg mb-4">{log.company}</p>
+          {log.progression && <p className="text-xs text-terminal-green/60 -mt-2 mb-4">{log.progression}</p>}
           <div className="flex flex-wrap gap-4 text-xs text-gray-400">
             <span className="flex items-center gap-1.5"><Calendar size={12} />{log.period}</span>
             <span className="flex items-center gap-1.5"><MapPin size={12} />{log.location}</span>

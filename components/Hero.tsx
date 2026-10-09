@@ -24,7 +24,7 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
   ],
   whoami: () => [
     { text: 'Manu Kesharwani', color: 'text-terminal-green' },
-    { text: 'Backend Developer Intern @ Tap Invest', color: 'text-gray-300' },
+    { text: 'SDE-1 (Backend) @ Tap Invest', color: 'text-gray-300' },
     { text: 'B.Tech CSE · BMS Institute of Technology, Bengaluru', color: 'text-gray-300' },
     { text: 'CGPA: 8.73 | Graduated: 2026', color: 'text-purple-400/80' },
     { text: '' },
@@ -43,7 +43,8 @@ const COMMANDS: Record<string, () => OutputLine[]> = {
   ],
   experience: () => [
     { text: '[ Tap Invest ]', color: 'text-terminal-green' },
-    { text: '  Role     : Backend Developer Intern', color: 'text-gray-300' },
+    { text: '  Role     : SDE-1 (Backend)  · since Oct 2026', color: 'text-gray-300' },
+    { text: '  Earlier  : Backend Developer Intern (Jun – Sep 2026)', color: 'text-gray-400' },
     { text: '  Period   : Jun 2026 – Present', color: 'text-gray-400' },
     { text: '  Location : Bengaluru, India', color: 'text-gray-400' },
     { text: '' },
@@ -107,7 +108,7 @@ const INTRO_LINES = [
   { text: '$ curl api.manukesharwani.dev/profile', color: 'text-terminal-green' },
   { text: '{', color: 'text-gray-400' },
   { text: '  "name": "Manu Kesharwani",', color: 'text-gray-300' },
-  { text: '  "role": "Backend Developer Intern",', color: 'text-gray-300' },
+  { text: '  "role": "SDE-1 (Backend)",', color: 'text-gray-300' },
   { text: '  "company": "Tap Invest",', color: 'text-terminal-green/80' },
   { text: '  "stack": ["Node.js","Next.js","TypeScript","Redis","AWS"],', color: 'text-yellow-400/80' },
   { text: '  "dsa": { "solved": 813, "rating": 1686 },', color: 'text-blue-400/80' },
@@ -256,7 +257,7 @@ const Hero: React.FC = () => {
           {/* Status badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-terminal-green/25 bg-terminal-green/5 text-[11px] font-mono text-terminal-green/60 w-fit rounded-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-terminal-green animate-pulse shrink-0" />
-            <span>Open to opportunities · Backend Dev Intern @ Tap Invest</span>
+            <span>Open to opportunities · SDE-1 Backend @ Tap Invest</span>
           </div>
 
           {/* Name */}

@@ -9,7 +9,7 @@ const About: React.FC = () => {
       <TerminalCard className="text-base md:text-lg leading-relaxed text-gray-300 space-y-4 font-mono">
         <p>
           <span className="text-terminal-green font-bold mr-2">&gt;</span>
-          Software Engineer Intern specializing in scalable backend services, fintech workflows, and high-volume multi-service architectures.
+          Backend Software Engineer (SDE-1) at Tap Invest, specializing in scalable backend services, fintech workflows, and high-volume multi-service architectures.
         </p>
 
         <p>

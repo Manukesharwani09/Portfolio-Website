@@ -7,12 +7,13 @@ import { ExternalLink, MapPin, Calendar, ChevronRight } from 'lucide-react';
 const experiences = [
   {
     id: 'tapinvest',
-    role: 'Backend Developer Intern',
+    role: 'SDE-1 (Backend)',
     company: 'Tap Invest',
     companyFull: 'Tap Invest',
     period: 'Jun 2026 – Present',
     location: 'Bengaluru, India',
-    type: 'Full-time Internship',
+    type: 'Full-time',
+    progression: 'Backend Developer Intern (Jun – Sep 2026) → SDE-1 (Oct 2026 – Present)',
     tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Redis', 'Java', 'Spring Boot', 'React', 'Next.js', 'TypeScript', 'AWS S3', 'REST APIs'],
     highlights: [
       'Built a bulk RFQ order processing system with batched DB ops, duplicate prevention, and per-record partial success reporting.',
@@ -57,6 +58,9 @@ const Experience: React.FC = () => {
                   <div>
                     <h3 className="text-lg font-bold text-terminal-green">{exp.role}</h3>
                     <p className="text-white font-semibold mt-0.5">{exp.companyFull}</p>
+                    {exp.progression && (
+                      <p className="text-xs text-terminal-green/60 mt-1">{exp.progression}</p>
+                    )}
                   </div>
                   {/* Devlog link — small icon */}
                   <Link
