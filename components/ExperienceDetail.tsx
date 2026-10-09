@@ -129,6 +129,19 @@ const devlogs: Record<string, any> = {
 - Verified live API behavior with direct curl testing before committing to a design — e.g. confirmed the partner's \`order_by\` throws a 500 on any nested field name, so only flat top-level fields are exposed as sortable columns.
 - Radar page: type-scoped table (G-Sec / Bond Secondary) with a sticky ISIN column, client-side pagination and page-size selection (dataset is small enough to fetch in full per filter change), server-driven sort/filter round-tripped through Sonar → Snape → partner API, and a detail view decoding ~20 numeric enum fields (coupon type, security type, listing status, etc.) against the partner's published value tables.`,
       },
+      {
+        icon: 'shield',
+        title: 'Cross-Service Reconciliation — Failure Tracking & Drift Detection',
+        content: `**Problem:** An investment's lifecycle spans several backend services. When a call between them failed or never completed, the services could silently fall out of sync, and nobody noticed until a user or the ops team raised it.
+
+**What I built:** A reusable Go library and a record → promote → reconcile pipeline that finds investments whose cross-service steps failed and flags what is out of sync.
+
+- **Step-level failure markers in Redis:** each top-level workflow step records a marker when it starts and clears it on success; a failure, or a process dying mid-step, leaves the marker behind on purpose.
+- **Promote job** moves markers older than a staleness threshold into a database table, so steps still in flight are never mistaken for failures.
+- **Reconcile job** checks each flagged investment against the live state of every service involved and records the inconsistencies it finds — detect-and-record only, by design.
+- Reuses each service's existing Redis and database connections instead of opening new ones; published as a versioned Go module shared by the services.
+- **End-to-end test harness** with fake external dependencies and a fault-injection proxy, covering 11 real failure scenarios, each asserted to record exactly the expected issues.`,
+      },
     ],
     tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Redis', 'Java', 'Spring Boot', 'React', 'TypeScript', 'Next.js', 'AWS S3', 'REST APIs', 'Multi-service Architecture'],
     learnings: [
@@ -146,6 +159,9 @@ const devlogs: Record<string, any> = {
       'Untyped JSON passthrough at a service boundary is a deliberate tradeoff, not laziness — it buys zero backend changes when an upstream partner adds a field, worth it only when downstream never needs to act on unknown fields.',
       'In a multi-service proxy, put vendor-specific mapping knowledge at the one layer closest to the actual vendor contract — every other layer should stay agnostic, so a second vendor integration only touches one place.',
       'Verify undocumented third-party API behavior (sort/pagination internals especially) with real curl tests before designing around it — official docs saying nothing about a behavior is not the same as that behavior not mattering.',
+      'Record failures at the workflow-step level, not per call — it also catches crashes mid-flow and "call succeeded but saving its result failed".',
+      'A detector that treats "couldn\'t check" as "no issue" silently hides real problems — a downstream service\'s "not found" vs "error" distinction is part of the contract.',
+      'Fault-injection end-to-end tests surface integration bugs that unit tests never will.',
     ],
   },
   melento: {
