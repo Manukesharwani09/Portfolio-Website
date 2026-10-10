@@ -121,10 +121,15 @@ const devlogs: Record<string, any> = {
 **What I built:** A reusable Go library and a record → promote → reconcile pipeline that finds investments whose cross-service steps failed and flags what is out of sync.
 
 - **Step-level failure markers in Redis:** each top-level workflow step records a marker when it starts and clears it on success; a failure, or a process dying mid-step, leaves the marker behind on purpose.
+- **One marker per step, per investment:** each step gets its own key, so one step succeeding can never clear another step's failure.
 - **Promote job** moves markers older than a staleness threshold into a database table, so steps still in flight are never mistaken for failures.
-- **Reconcile job** checks each flagged investment against the live state of every service involved and records the inconsistencies it finds — detect-and-record only, by design.
+- **Reconcile job** checks each flagged investment against the live state of every service involved and records the inconsistencies it finds — detect-and-record only, by design. Checks cover status lagging behind the payments service, paid investments with no RFQ order, RFQ stage mismatches, refunds that never started or succeeded after a failure, missing order/deal sheets and quote receipts, and inventory still blocked after a failed payment.
+- **Each service keeps its own failure rows:** the payments service exposes read-candidates and apply-result endpoints, so the reconcile job in the investments service writes results back where each row lives instead of copying them; a whole diagnosis is saved in a single write.
+- Only failures the reconcile job can actually detect keep a marker — notification, email and analytics failures alone don't; effects that used to swallow errors now return them.
+- The document service now answers "not found" instead of a generic error when a sheet doesn't exist, so a missing document is flagged while a temporary outage is skipped rather than miscounted.
+- **Closed a related prod gap:** a paid investment whose RFQ order failed to create had no trade date, so the hourly settlement recon never picked it up until settlement day. Added a sweep for paid-but-no-RFQ investments, and a guard that refuses to draft an RFQ with an already-passed trade date — reported for manual action instead of retried every hour.
 - Reuses each service's existing Redis and database connections instead of opening new ones; published as a versioned Go module shared by the services.
-- **End-to-end test harness** with fake external dependencies and a fault-injection proxy, covering 11 real failure scenarios, each asserted to record exactly the expected issues.`,
+- **End-to-end test harness** with fake external dependencies and a fault-injection proxy, covering 11 real failure scenarios (document service down, payments service down, refunds, vendor change, settlement failure, offline UPI refunds), each asserted to record exactly the expected issues.`,
       },
       {
         icon: 'shield',
@@ -134,11 +139,41 @@ const devlogs: Record<string, any> = {
 **What I built:** One rule across four services (Mercury, Sonar, Horizon, Radar): every refund is a request in the maker-checker approval inbox, nothing changes while it waits, and the checker's approval starts the refund and moves the payment, every related RFQ order and the investment in a single step.
 
 - **Two-step API in the payments service:** a read-only \`check\` endpoint resolves any source (payment, order, investment, RFQ order or settlement) to the payment behind it, validates it and reports amount, method and trade stage without writing anything; a \`start\` endpoint, called only on approval, re-validates under the order lock and starts the refund.
-- **Explicit outcomes per gateway:** UPI refunds are marked for offline handling; net-banking refunds go to the gateway and come back as started, refused (nothing else moves) or retry-scheduled (the gateway was down, so the cron sends it later while orders and the investment have already moved).
+- **UPI refunds go offline:** UPI money never sits with the gateway, so the gateway rejected every UPI refund and a nightly cron kept retrying them. UPI refunds now skip the gateway entirely, move to an offline in-progress state with the investment and RFQ orders updated, and ops close them with a Complete action once the money is returned.
+- **Explicit outcomes per gateway:** net-banking refunds go to the gateway and come back as started, refused (nothing else moves) or retry-scheduled (the gateway was down, so the cron sends it later while orders and the investment have already moved).
 - **Trade stage shown, not enforced:** the checker sees whether the bonds were not placed, placed or already sold, so approval is a human decision instead of a hardcoded same-day rule; already-blocked inventory is released automatically, placed or sold units are left alone.
 - **Duplicate protection:** one open request per payment, and a second click gets a clear "awaiting approval" / "already in progress" response instead of silently doing nothing; full-amount-only refunds enforced at the gateway layer.
 - Removed the two old refund endpoints that bypassed approval, kept one narrow path for refunds triggered directly from the investments service (still refused once a trade is committed), and added a new checker permission, a refund view in the approvals inbox, and a Complete action for offline UPI refunds in the admin dashboard.
 - **End-to-end tested locally** against a fake payment gateway: 81 checks across net banking and UPI, placed and unplaced trades, gateway refusal, gateway downtime, bank-side failure, double payments and the direct-trigger path — all passing.`,
+      },
+      {
+        icon: 'database',
+        title: 'Daily Settlement Reconciliation — End-to-End Money Trail per Settlement Date',
+        content: `**Problem:** For any settlement day, the money trail runs across two services and seven tables — investments, payment orders, payment legs, refunds, gateway settlements, RFQ orders and the daily statement. Nobody could see in one place whether a day had fully closed, or which order was stuck where.
+
+**What I built:** A daily settlement recon across four services (Mercury, Horizon, Sonar, Radar), surfaced as a new Settlement Recon page in the ops dashboard with a single settlement-date filter.
+
+- **Computed once, read many times:** a sync (manual button or cron) reconciles the day across both services and stores the result as a JSON snapshot on that day's statement row — opening the page never fans out to three systems, and the statement table is the only one written.
+- **Invariants for a healthy day:** no investment left unplaced or un-advanced after its settlement date, net-banking payments equal gateway settlement totals, settled-out equals the statement, and settlement amount equals payment minus charges.
+- **Named detectors** for each kind of gap — money stuck at the gateway, trade never placed, settled but not booked, stale refunds, offline-investment drift, status drift, and a surplus payment leg held with no settlement or refund (confirmed with a capped per-order lookup against the gateway).
+- **Day states** — Upcoming, In progress, Closed, Open gap — with only a failing critical invariant shown as red; UPI money settles through exchange clearing, not the gateway, so it is reported informationally and never flagged as a gap.
+- **Pivot-table UI:** one table with a column per stage (investment → order → payment legs → settlement → RFQ), collapsible nested buckets with counts and amounts, and each detector attached to the exact bucket that fires it — a healthy day is a table with no flags.
+- Sync refuses to fabricate a statement row for a day that has none, so a missing day can never show up as a real zero balance.
+- Verified the recon queries read-only against production data for a real day — the totals matched the expected arithmetic exactly.`,
+      },
+      {
+        icon: 'wrench',
+        title: 'Bonds Explorer — Server-Driven Drill-Down for Companies, ISINs, Inventory & Deals',
+        content: `**Problem:** The ops dashboard's Companies view was one flat table that opened a narrow side sheet with a 12-column ISIN table (sideways scrolling, no search, client-side pagination), with inventory in yet another stacked dialog. Deals had the same side-panel design.
+
+**What I built:** Rebuilt the bond screens as drill-down pages backed by new query endpoints, across Horizon, Sonar and Radar.
+
+- **Pages, not panels:** Companies → company page (stat tiles, ISINs / Inventory / Details tabs), a new all-ISINs list → ISIN page (Inventory / Cashflow / Documents / Carousel / Deals tabs), and Deals → deal page (Overview with inline edits, Inventory, Investments). Old side-panel links redirect to the new pages.
+- **Everything in the database:** three new query endpoints return rows with their rollups (ISIN counts, unit totals, document presence) as SQL columns, so search, filter, sort and pagination all run server-side, with a unique-key tiebreaker so pages never shuffle.
+- **Closed a query-injection surface:** every query endpoint now checks search, filter and sort fields against an allow-list of real columns (unknown fields get a clear 400), and the shared query-builder library was upgraded to validate identifiers and drop a raw-subquery operator.
+- **Removed an N+1:** the existing per-issuer ISIN listing now runs as one summary query instead of two extra queries per ISIN.
+- **Reusable frontend building blocks:** URL-held table state (shareable, back-button friendly), a server-driven table component, detail-page shell and URL tabs; types mirror the server allow-lists so the compiler rejects a field the server would refuse.
+- Sellable inventory lots sort first, with expired / sold-out lots muted and badged; deal edits now reject blank or invalid values that used to silently save as zero.`,
       },
     ],
     tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Redis', 'Java', 'Spring Boot', 'React', 'TypeScript', 'Next.js', 'AWS S3', 'REST APIs', 'Multi-service Architecture'],
