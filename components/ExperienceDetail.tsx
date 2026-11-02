@@ -180,6 +180,37 @@ const devlogs: Record<string, any> = {
 - **Reusable frontend building blocks:** URL-held table state (shareable, back-button friendly), a server-driven table component, detail-page shell and URL tabs; types mirror the server allow-lists so the compiler rejects a field the server would refuse.
 - Sellable inventory lots sort first, with expired / sold-out lots muted and badged; deal edits now reject blank or invalid values that used to silently save as zero.`,
       },
+      {
+        icon: 'zap',
+        title: 'Trade Sheets — Order, Deal & Quote Documents Without an Investment',
+        content: `**Problem:** Order sheets, deal sheets and quote receipts could only be generated from a platform investment, and they printed only the buyer's details with fixed branding. Trades done directly between two vendors had no way to get these documents.
+
+**What I built (in progress):** A trade-sheet flow across three services (Laser, Sonar, Radar) where ops enter a buyer and a seller side by side and generate any of the three PDFs in one go.
+
+- **One generic document endpoint:** the document service now takes a list of sheets, each with its own rows, and prints them all in one call. Bad input fails the whole call before anything is made; if one document fails (e.g. a storage upload), the others are still returned, and a failed one never leaves a half-saved row behind.
+- **The API gateway decides what each document shows:** the party a document is addressed to is printed in full, the other side only by name and client code, so one side's PAN or bank details never land on the other side's documents. Depository details are worked out from the demat fields instead of being typed in.
+- **No hardcoded parties:** both sides fill from any vendor's record (or are typed in), every party field is optional, and empty fields are simply not printed. That also covers trades with only one side.
+- **Preview before generating:** shows exactly the rows each document will print, with warnings that never block; generation is one call however many documents are ticked, with a per-document status and Retry for the ones that failed.
+- Saved trade records with a history page (download, regenerate, or edit and regenerate); a failed regeneration keeps the earlier good document downloadable.
+- Calculated money fields (accrued interest, consideration, stamp duty) are editable, with a "differs from calculated" badge and a Reset; changing the bond, units or price recalculates them.
+- Matching validation on the server and in the form (PAN, demat and bank formats, same vendor on both sides refused), guarded by a single new permission.
+- Checked production vendor data to plan a backfill of demat and bank details into vendor records; a settlement-date endpoint is still to come.`,
+      },
+      {
+        icon: 'wrench',
+        title: 'RFQ Orders Screen — Consistent Counts, Refund Handling & Vendor Names',
+        content: `**Problem:** The RFQ Orders screen told different stories about the same orders: the All tab count ignored search and the stage filter (showing tens of thousands over a table of a few hundred), refunds were hidden by subtracting a number after the fact, vendors showed up as raw internal IDs, and refunded orders could still be edited — which quietly cloned them into a fresh draft that could be placed again.
+
+**What I built:** A set of fixes in the ops dashboard (Radar) so every number on the page comes from the same query as the table.
+
+- **Tab counts run the table's own query,** including search and the stage filter, so the badge always matches the table total.
+- **Refund-initiated orders are excluded from All in the query itself,** with an "Include refunds" toggle as an escape hatch; bulk actions no longer receive refund rows.
+- **Face value and clean consideration** (units × face value) added to the vendor + ISIN summaries, with one shared helper so both summary sheets agree.
+- **Refunded orders are read-only in the UI:** the edit pencil and edit dialog are disabled for them (the backend lock is tracked separately).
+- **Clear selection** button, and the selection resets whenever the tab, search or filters change, including an in-flight "select all matching" request.
+- Vendor column shows the vendor's name with its ID as a muted second line, also in exports.
+- Deployed to a shared dev stack and cross-checked every count against the database.`,
+      },
     ],
     tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Redis', 'Java', 'Spring Boot', 'React', 'TypeScript', 'Next.js', 'AWS S3', 'REST APIs', 'Multi-service Architecture'],
     learnings: [
