@@ -185,7 +185,7 @@ const devlogs: Record<string, any> = {
         title: 'Trade Sheets — Order, Deal & Quote Documents Without an Investment',
         content: `**Problem:** Order sheets, deal sheets and quote receipts could only be generated from a platform investment, and they printed only the buyer's details with fixed branding. Trades done directly between two vendors had no way to get these documents.
 
-**What I built (in progress):** A trade-sheet flow across three services (Laser, Sonar, Radar) where ops enter a buyer and a seller side by side and generate any of the three PDFs in one go.
+**What I built:** A trade-sheet flow across four services (Laser, Sonar, Radar, plus a settlement-date endpoint in Horizon) where ops enter a buyer and a seller side by side and generate any of the three PDFs in one go.
 
 - **One generic document endpoint:** the document service now takes a list of sheets, each with its own rows, and prints them all in one call. Bad input fails the whole call before anything is made; if one document fails (e.g. a storage upload), the others are still returned, and a failed one never leaves a half-saved row behind.
 - **The API gateway decides what each document shows:** the party a document is addressed to is printed in full, the other side only by name and client code, so one side's PAN or bank details never land on the other side's documents. Depository details are worked out from the demat fields instead of being typed in.
@@ -193,8 +193,11 @@ const devlogs: Record<string, any> = {
 - **Preview before generating:** shows exactly the rows each document will print, with warnings that never block; generation is one call however many documents are ticked, with a per-document status and Retry for the ones that failed.
 - Saved trade records with a history page (download, regenerate, or edit and regenerate); a failed regeneration keeps the earlier good document downloadable.
 - Calculated money fields (accrued interest, consideration, stamp duty) are editable, with a "differs from calculated" badge and a Reset; changing the bond, units or price recalculates them.
-- Matching validation on the server and in the form (PAN, demat and bank formats, same vendor on both sides refused), guarded by a single new permission.
-- Checked production vendor data to plan a backfill of demat and bank details into vendor records; a settlement-date endpoint is still to come.`,
+- **Buyer and seller can each be a vendor or an investor:** a toggle switches the buyer between a B2B vendor (printed by name and client code only) and an investor whose details fill in automatically. The seller stays off order and deal sheets and can never be the same vendor as the buyer.
+- **Real settlement dates:** a new endpoint returns the bond's valid same-day and next-day settlement dates, so ops pick from those instead of typing one. The pricing call checks the chosen date and accepts a face-value override.
+- The debenture trustee fills in from the bond, with a manual option, and missing fields are highlighted before generating.
+- Validation lives on the server only (PAN, demat and bank formats), with its errors shown on the exact field instead of a second copy of the rules in the form. Access is guarded by dedicated trade-sheet permissions.
+- Downloads are named by document type, bond and date, and quote receipts are stored in their own storage bucket.`,
       },
       {
         icon: 'wrench',
@@ -210,6 +213,32 @@ const devlogs: Record<string, any> = {
 - **Clear selection** button, and the selection resets whenever the tab, search or filters change, including an in-flight "select all matching" request.
 - Vendor column shows the vendor's name with its ID as a muted second line, also in exports.
 - Deployed to a shared dev stack and cross-checked every count against the database.`,
+      },
+      {
+        icon: 'database',
+        title: 'Inventory Books Correction — Repairing the Bond Ledger in One Audited Run',
+        content: `**Problem:** Each batch of bonds keeps unit counters (available, blocked, placed, sold), and an append-only ledger records every movement. Over time the two drifted apart. Older code recorded sales on the wrong batch, counters had been edited by hand to unstick trades, and some ledger rows were impossible or belonged to dead orders. As a result, some customers' trades could not settle.
+
+**What I built:** A correction engine in the investments service (Horizon) that repairs one bond/vendor pair at a time from a single command-style line. The whole correction runs as one migration inside one transaction.
+
+- **Ordered repair steps:** move sales back to the batch the order actually blocked on, reverse manual counter edits, drop or fix impossible ledger rows, finish orders that were silently skipped, settle stuck lots, and release units still held by dead orders.
+- **Every change is audited:** each row is copied to a corrections table with its reason before it is touched, so every fix is visible and can be undone.
+- **Safety checks per batch:** a step only runs where the batch's counters already agree with its ledger. Anything else is held for a human decision instead of guessed.
+- **Tested on a local copy of production first:** a by-hand mode refuses to run against anything but a local database, and it can simulate the follow-up status calls to show how each order would move afterwards.
+- Triggered through an admin endpoint instead of on startup, so the run happens exactly when ops are ready. Shared connections now open once before the command runs.`,
+      },
+      {
+        icon: 'shield',
+        title: 'Late Payments — Delayed Success & Automatic Refunds',
+        content: `**Problem:** Sometimes a bank confirms a payment only after the order has already been marked failed and its units released. The customer has paid but owns nothing. The investments service also refused to move a failed investment into a refund, so these cases could only be fixed by hand.
+
+**What I built:** A late-payment path across the payments service (Mercury) and the investments service (Horizon) that picks up these payments automatically.
+
+- **Delayed success from both entry points:** a success that arrives after failure, whether from the gateway webhook or the order recon, goes through one dedicated late-payment path instead of the normal success flow. Syncing an already-failed order is routed the same way.
+- **Late payments are refunded:** the order recon now refunds late payments automatically, and a refund on a duplicate payment for the same order is never reported to the investments service as the investment's refund.
+- **Checks wait for the window to close:** the late-success recon only looks at an order after its late-payment window has passed, so a payment still in flight is never treated as late.
+- **Investments service changes:** a failed investment can now move into refund, and status changes made by recon can skip customer notifications, so customers don't get confusing failed-then-refunded messages.
+- **One-off data cleanup:** closed old reconciliation refunds through the same refund code instead of raw updates, fixed lagging investment statuses, and linked refunds to the inventory correction. The cleanup runs on an admin endpoint instead of at startup.`,
       },
     ],
     tech: ['Go', 'Gin', 'GORM', 'PostgreSQL', 'Redis', 'Java', 'Spring Boot', 'React', 'TypeScript', 'Next.js', 'AWS S3', 'REST APIs', 'Multi-service Architecture'],
